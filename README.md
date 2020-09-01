@@ -6,13 +6,13 @@ Utility in Java to run command like batch file or sh file or any other command
 Initial check in.<br>
 
 ## Description<br>
-This program give UI and commands from config are present in tabular format<br>
-User can either double click using mouse or press enter key to run that command<br>
+This program give UI and commands from a configuration are present in tabular format<br>
+User can either double-click using mouse or press enter key to run that command<br>
 Command can be foreground or background, cmd screen may or may not visible<br>
 If there are more commands user can use filter<br>
 At runtime "Reload" button can be used to refresh commands<br>
-Example: If batch file called as <b>start BATCHFILE</b> then process will be in foreground<br>
-Example: If batch file called as <b>BATCHFILE</b> then process will be in background<br>
+* Example: If batch file called as `start BATCHFILE` then process will be in foreground<br>
+* Example: If batch file called as `BATCHFILE` then process will be in background<br>
 
 #### Images<br>
 Attaching screen shot of application:<br>
