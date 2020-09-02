@@ -4,8 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.sv</groupId>
-    <artifactId>search-big-file</artifactId>
+    <artifactId>runcmd</artifactId>
     <version>1.0</version>
+    <name>Run Command Utility</name>
     <build>
         <plugins>
             <plugin>
@@ -13,8 +14,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>9</source>
-                    <target>9</target>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
         </plugins>
