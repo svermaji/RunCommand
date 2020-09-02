@@ -3,6 +3,7 @@ Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
 #### On 02-Sep-2020<br>
+* On startup window will be set to right most part of screen
 * Filter can be cleared with button and short key action
 * Last run command will be displayed in title bar and in information label at top
 * User can select `random themes` and `random colors` option that will change every 10 minutes
