@@ -13,7 +13,8 @@ public class DefaultConfigs {
 
     private URL propUrl;
     enum Config {
-        WHOLE_WORD("WholeWord");
+        RANDOM_THEMES("RandomThemes"),
+        RANDOM_COLORS("RandomColors");
 
         String val;
         Config (String val) {
