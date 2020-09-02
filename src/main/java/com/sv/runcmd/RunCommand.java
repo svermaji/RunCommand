@@ -293,7 +293,6 @@ public class RunCommand extends AppFrame {
                 ru.logger.log("Calling command [" + cmdStr + "]");
                 Runtime.getRuntime().exec(cmdStr);
             } catch (Exception e) {
-                e.printStackTrace();
                 ru.logger.error(e);
             }
             return true;
