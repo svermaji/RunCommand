@@ -406,8 +406,8 @@ public class RunCommand extends AppFrame {
         Rectangle bounds = config.getBounds();
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
 
-        if (tblCommands.getRowCount() > (DEFAULT_NUM_ROWS * 2) / 2) {
-            setSize(getWidth(), getHeight() * 2);
+        if (tblCommands.getRowCount() > (DEFAULT_NUM_ROWS * 1.75) / 2) {
+            setSize(getWidth(), (int)(getHeight() * 1.75));
         }
 
         int x = bounds.x + bounds.width - insets.right - getWidth();
@@ -457,7 +457,7 @@ public class RunCommand extends AppFrame {
             String chk = " (";
             return cmd.contains(chk) ?
                     cmd.substring(cmd.indexOf(chk) + chk.length(), cmd.lastIndexOf(")")) :
-                    cmd.substring(cmd.lastIndexOf("\\"));
+                    cmd.substring(cmd.lastIndexOf(Utils.SLASH) + Utils.SLASH.length());
         }
     }
 
