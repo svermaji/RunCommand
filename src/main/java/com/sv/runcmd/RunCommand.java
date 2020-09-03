@@ -347,7 +347,7 @@ public class RunCommand extends AppFrame {
     }
 
     private void updateTitle(String subTitle) {
-        setTitle(APP_TITLE + " - " + subTitle);
+        setTitle(APP_TITLE + Utils.SP_DASH_SP + subTitle);
     }
 
     private void addFilter() {
