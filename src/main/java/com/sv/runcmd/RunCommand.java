@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.IntStream;
 
@@ -80,8 +81,7 @@ public class RunCommand extends AppFrame {
         }
     }
 
-    //private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
-    private static final long THEME_COLOR_CHANGE_TIME = 5000;
+    private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
 
@@ -457,7 +457,7 @@ public class RunCommand extends AppFrame {
             String chk = " (";
             return cmd.contains(chk) ?
                     cmd.substring(cmd.indexOf(chk) + chk.length(), cmd.lastIndexOf(")")) :
-                    cmd.substring(cmd.indexOf("\\"));
+                    cmd.substring(cmd.lastIndexOf("\\"));
         }
     }
 
