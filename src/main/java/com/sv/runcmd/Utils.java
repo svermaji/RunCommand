@@ -11,6 +11,7 @@ public class Utils {
     public static final String EMPTY = "";
     public static final String SPACE = " ";
     public static final String SLASH = "\\";
+    public static final String ELLIPSIS = "..";
     public static final String DOUBLE_SPACE = SPACE+SPACE;
     public static final String DASH = "-";
     public static final String SP_DASH_SP = SPACE + DASH + SPACE;

@@ -2,6 +2,13 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 03-Sep-2020<br>
+* Now favourite buttons added (max 5)
+* Most prominent actions can used, even at runtime by clicking reload.  User just need to add `*` at the start of command
+* If fav commands are less or more, rest will be ignored
+* Tooltip and Enable will be done accordingly
+* If name is long it will be trimmed (See image)
+
 #### On 02-Sep-2020<br>
 * On startup window will be set to right most part of screen
 * Filter can be cleared with button and short key action
@@ -22,11 +29,14 @@ At runtime "Reload" button can be used to refresh commands<br>
 * Example: If batch file called as `BATCHFILE` then process will be in background<br>
 
 #### Images<br>
-Attaching screen shot of application:<br>
+Initial - Attaching screen shot of application:<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image.png) 
 
-Attaching screen shot, now user can have themes and colors:<br>
+2-Sep-2020 - Attaching screen shot, now user can have themes and colors:<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-theme-color.png) 
 
-Attaching screen shot, showing colors:<br>
+2-Sep-2020 - Attaching screen shot, showing colors:<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-theme-color-2.png) 
+
+3-Sep-2020 - Attaching screen shot, showing colors:<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-fav.png) 

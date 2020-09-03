@@ -13,12 +13,14 @@ import java.awt.event.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.IntStream;
 
@@ -95,6 +97,10 @@ public class RunCommand extends AppFrame {
 
     private JTextField txtFilter;
     private JButton btnReload, btnClear, btnExit;
+    private JButton[] btnFavs;
+    private List<String> favs;
+    private int FAV_BTN_LIMIT = 5;
+    private int BTN_TEXT_LIMIT = 8;
     private JCheckBox jcbRandomThemes, jcbRandomColor;
 
     private final String JCB_THEME_TEXT = "random themes";
@@ -125,6 +131,7 @@ public class RunCommand extends AppFrame {
         setTitle(APP_TITLE);
 
         lookAndFeels = UIManager.getInstalledLookAndFeels();
+        favs = new ArrayList<>();
 
         Border emptyBorder = new EmptyBorder(new Insets(5, 5, 5, 5));
 
@@ -183,18 +190,30 @@ public class RunCommand extends AppFrame {
         controlPanel.add(jcbRandomColor);
         controlPanel.setBorder(emptyBorder);
 
-        JPanel topPanel = new JPanel(new GridLayout(3, 1));
+        createTable();
+        btnFavs = new JButton[FAV_BTN_LIMIT];
+        for (int i = 0; i < FAV_BTN_LIMIT; i++) {
+            btnFavs[i] = new JButton();
+        }
+        redrawFavBtns();
+
+        JPanel favBtnPanel = new JPanel(new GridBagLayout());
+        for (JButton b : btnFavs) {
+            favBtnPanel.add(b);
+        }
+
+        JPanel topPanel = new JPanel(new GridLayout(4, 1));
         topPanel.add(lblInfo);
         topPanel.add(inputPanel);
         topPanel.add(controlPanel);
         topPanel.setBorder(emptyBorder);
-
-        createTable();
+        topPanel.add(favBtnPanel);
 
         JScrollPane jspCmds = new JScrollPane(tblCommands);
         jspCmds.setBorder(emptyBorder);
 
         parentContainer.add(topPanel, BorderLayout.NORTH);
+        parentContainer.add(jspCmds, BorderLayout.CENTER);
         parentContainer.add(jspCmds, BorderLayout.CENTER);
 
         btnExit.addActionListener(evt -> exitForm());
@@ -208,6 +227,13 @@ public class RunCommand extends AppFrame {
         threadPool.submit(new ColorChangerCallable(this));
 
         setPosition();
+    }
+
+    private String checkLength(String s) {
+        if (s.length() > BTN_TEXT_LIMIT) {
+            return s.substring(0, BTN_TEXT_LIMIT-Utils.ELLIPSIS.length()) + Utils.ELLIPSIS;
+        }
+        return s;
     }
 
     private void handleColor() {
@@ -264,8 +290,32 @@ public class RunCommand extends AppFrame {
     }
 
     private void reloadFile() {
+        favs = new ArrayList<>();
         clearOldRun();
         createRows();
+        redrawFavBtns();
+    }
+
+    private void cleanFavBtns() {
+        for (JButton b : btnFavs) {
+            b.setText("X");
+            b.setToolTipText("");
+            b.setEnabled(false);
+        }
+    }
+
+    private void redrawFavBtns() {
+        cleanFavBtns();
+        AtomicInteger idx = new AtomicInteger();
+        for (String cmd : favs) {
+            if (idx.get() >= FAV_BTN_LIMIT) {
+                break;
+            }
+            btnFavs[idx.get()].setEnabled(true);
+            btnFavs[idx.get()].setText(checkLength(getDisplayName(cmd)));
+            btnFavs[idx.get()].addActionListener(evt -> runCommand(cmd));
+            btnFavs[idx.getAndIncrement()].setToolTipText(cmd);
+        }
     }
 
     private void createTable() {
@@ -379,6 +429,9 @@ public class RunCommand extends AppFrame {
 
         int i = 0;
         for (String command : commands) {
+            if (command.startsWith("*")) {
+                favs.add(command);
+            }
             if (i < DEFAULT_NUM_ROWS) {
                 tblCommands.setValueAt(command, i, COLS.IDX.getIdx());
                 tblCommands.setValueAt(command, i, COLS.COMMAND.getIdx());
@@ -387,6 +440,27 @@ public class RunCommand extends AppFrame {
             }
             i++;
         }
+    }
+
+    private String getDisplayName(String cmd) {
+        String chk = " (";
+        return cmd.contains(chk) ?
+                cmd.substring(cmd.indexOf(chk) + chk.length(), cmd.lastIndexOf(")")) :
+                cmd.substring(cmd.lastIndexOf(Utils.SLASH) + Utils.SLASH.length());
+    }
+
+    private String chopStar(String cmd) {
+        if (cmd.startsWith("*")) {
+            cmd = cmd.substring(1);
+        }
+        return cmd;
+    }
+
+    private String getCmdToRun(String cmd) {
+        String chk = " (";
+        cmd = cmd.contains(chk) ?
+                cmd.substring(0, cmd.indexOf(chk)) : cmd;
+        return chopStar(cmd);
     }
 
     private List<String> readCommands() {
@@ -407,7 +481,7 @@ public class RunCommand extends AppFrame {
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
 
         if (tblCommands.getRowCount() > (DEFAULT_NUM_ROWS * 1.75) / 2) {
-            setSize(getWidth(), (int)(getHeight() * 1.75));
+            setSize(getWidth(), (int) (getHeight() * 1.75));
         }
 
         int x = bounds.x + bounds.width - insets.right - getWidth();
@@ -441,10 +515,10 @@ public class RunCommand extends AppFrame {
         @Override
         public Boolean call() {
             try {
-                String cmdStr = cmd.contains(" (") ? cmd.substring(0, cmd.indexOf(" (")) : cmd;
+                String cmdStr = rc.getCmdToRun(cmd);
                 rc.logger.log("Calling command [" + cmdStr + "]");
                 Runtime.getRuntime().exec(cmdStr);
-                lastCmdRun = getCmdInfo();
+                lastCmdRun = rc.getDisplayName(cmd);
                 rc.updateInfo();
                 rc.updateTitle(lastCmdRun);
             } catch (Exception e) {
@@ -453,12 +527,6 @@ public class RunCommand extends AppFrame {
             return true;
         }
 
-        private String getCmdInfo() {
-            String chk = " (";
-            return cmd.contains(chk) ?
-                    cmd.substring(cmd.indexOf(chk) + chk.length(), cmd.lastIndexOf(")")) :
-                    cmd.substring(cmd.lastIndexOf(Utils.SLASH) + Utils.SLASH.length());
-        }
     }
 
     static class ThemeChangerCallable implements Callable<Boolean> {
