@@ -31,7 +31,7 @@ public class RunCommand extends AppFrame {
 
     public enum COLS {
         IDX(0, "#", "center", 0),
-        COMMAND(1, "Command", "left", -1);
+        COMMAND(1, "Commands", "left", -1);
 
         String name, alignment;
         int idx, width;
@@ -86,6 +86,7 @@ public class RunCommand extends AppFrame {
     private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
+    private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
 
     private static String lastCmdRun, lastThemeApplied, lastColorApplied;
 
@@ -99,8 +100,8 @@ public class RunCommand extends AppFrame {
     private JButton btnReload, btnClear, btnExit;
     private JButton[] btnFavs;
     private List<String> favs;
-    private int FAV_BTN_LIMIT = 5;
-    private int BTN_TEXT_LIMIT = 8;
+    private final int FAV_BTN_LIMIT = 5;
+    private final int BTN_TEXT_LIMIT = 8;
     private JCheckBox jcbRandomThemes, jcbRandomColor;
 
     private final String JCB_THEME_TEXT = "random themes";
@@ -137,12 +138,12 @@ public class RunCommand extends AppFrame {
 
         jcbRandomThemes = new JCheckBox(JCB_THEME_TEXT,
                 Boolean.parseBoolean(configs.getConfig(DefaultConfigs.Config.RANDOM_THEMES)));
-        jcbRandomThemes.setToolTipText("Changes every 10 minutes");
-        jcbRandomThemes.addActionListener(evt -> handleTheme());
+        jcbRandomThemes.setToolTipText(JCB_TOOL_TIP);
+        jcbRandomThemes.addActionListener(evt -> changeTheme());
         jcbRandomColor = new JCheckBox(JCB_COLOR_TEXT,
                 Boolean.parseBoolean(configs.getConfig(DefaultConfigs.Config.RANDOM_COLORS)));
-        jcbRandomColor.setToolTipText("Changes every 10 minutes");
-        jcbRandomColor.addActionListener(evt -> handleColor());
+        jcbRandomColor.setToolTipText(JCB_TOOL_TIP);
+        jcbRandomColor.addActionListener(evt -> changeColor());
 
         Border lineBorder = new LineBorder(Color.black, 1);
         final int TXT_COLS = 20;
@@ -175,21 +176,6 @@ public class RunCommand extends AppFrame {
 
         btnExit = new AppExitButton();
 
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridBagLayout());
-        inputPanel.add(lblFilter);
-        inputPanel.add(txtFilter);
-        inputPanel.add(btnClear);
-        inputPanel.add(btnReload);
-        inputPanel.add(btnExit);
-        inputPanel.setBorder(emptyBorder);
-
-        JPanel controlPanel = new JPanel();
-        controlPanel.setLayout(new GridBagLayout());
-        controlPanel.add(jcbRandomThemes);
-        controlPanel.add(jcbRandomColor);
-        controlPanel.setBorder(emptyBorder);
-
         createTable();
         btnFavs = new JButton[FAV_BTN_LIMIT];
         for (int i = 0; i < FAV_BTN_LIMIT; i++) {
@@ -198,23 +184,46 @@ public class RunCommand extends AppFrame {
         redrawFavBtns();
 
         JPanel favBtnPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.weightx = 0.5;
+        c.gridx = 0;
+        c.gridy = 0;
         for (JButton b : btnFavs) {
-            favBtnPanel.add(b);
+            c.gridx++;
+            favBtnPanel.add(b, c);
         }
 
-        JPanel topPanel = new JPanel(new GridLayout(4, 1));
-        topPanel.add(lblInfo);
-        topPanel.add(inputPanel);
-        topPanel.add(controlPanel);
-        topPanel.setBorder(emptyBorder);
-        topPanel.add(favBtnPanel);
+        JPanel controlPanel = new JPanel();
+        controlPanel.setLayout(new GridBagLayout());
+        controlPanel.add(jcbRandomThemes);
+        controlPanel.add(jcbRandomColor);
+        controlPanel.setBorder(emptyBorder);
 
+        JPanel topPanel = new JPanel(new GridLayout(3, 1));
+        topPanel.add(lblInfo);
+        topPanel.add(controlPanel);
+        topPanel.add(favBtnPanel);
+        topPanel.setBorder(emptyBorder);
+
+        JPanel lowerPanel = new JPanel(new BorderLayout());
         JScrollPane jspCmds = new JScrollPane(tblCommands);
-        jspCmds.setBorder(emptyBorder);
+
+        JPanel filterPanel = new JPanel();
+        filterPanel.setLayout(new GridBagLayout());
+        filterPanel.add(lblFilter);
+        filterPanel.add(txtFilter);
+        filterPanel.add(btnClear);
+        filterPanel.add(btnReload);
+        filterPanel.add(btnExit);
+        filterPanel.setBorder(emptyBorder);
+
+        lowerPanel.add(filterPanel, BorderLayout.NORTH);
+        lowerPanel.add(jspCmds, BorderLayout.CENTER);
+        lowerPanel.setBorder(emptyBorder);
 
         parentContainer.add(topPanel, BorderLayout.NORTH);
-        parentContainer.add(jspCmds, BorderLayout.CENTER);
-        parentContainer.add(jspCmds, BorderLayout.CENTER);
+        parentContainer.add(lowerPanel, BorderLayout.CENTER);
 
         btnExit.addActionListener(evt -> exitForm());
         addWindowListener(new WindowAdapter() {
@@ -231,12 +240,12 @@ public class RunCommand extends AppFrame {
 
     private String checkLength(String s) {
         if (s.length() > BTN_TEXT_LIMIT) {
-            return s.substring(0, BTN_TEXT_LIMIT-Utils.ELLIPSIS.length()) + Utils.ELLIPSIS;
+            return s.substring(0, BTN_TEXT_LIMIT - Utils.ELLIPSIS.length()) + Utils.ELLIPSIS;
         }
         return s;
     }
 
-    private void handleColor() {
+    private void changeColor() {
         COLOR color = jcbRandomColor.isSelected() ? getNextColor() : COLOR.DEFAULT;
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
@@ -252,7 +261,7 @@ public class RunCommand extends AppFrame {
         return COLOR.values()[colorIdx++];
     }
 
-    private void handleTheme() {
+    private void changeTheme() {
         try {
             if (jcbRandomThemes.isSelected()) {
                 String lfClass = getNextLookAndFeel();
@@ -389,9 +398,11 @@ public class RunCommand extends AppFrame {
         }
         if (lastThemeApplied != null) {
             jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + lastThemeApplied + ")");
+            jcbRandomThemes.setToolTipText(JCB_TOOL_TIP + ". Present theme: " + lastThemeApplied);
         }
         if (lastColorApplied != null) {
             jcbRandomColor.setText(JCB_COLOR_TEXT + " (" + lastColorApplied + ")");
+            jcbRandomColor.setToolTipText(JCB_TOOL_TIP + ". Present color: " + lastColorApplied);
         }
         logger.log("Thread pool current size: " + threadPool.toString());
     }
@@ -546,8 +557,7 @@ public class RunCommand extends AppFrame {
                     rc.logger.warn("Thread sleep interrupted");
                 }
                 if (Boolean.parseBoolean(rc.getRandomThemes())) {
-                    rc.handleTheme();
-                    rc.updateInfo();
+                    rc.changeTheme();
                 }
             }
         }
@@ -570,8 +580,7 @@ public class RunCommand extends AppFrame {
                     rc.logger.warn("Thread sleep interrupted");
                 }
                 if (Boolean.parseBoolean(rc.getRandomColors())) {
-                    rc.handleColor();
-                    rc.updateInfo();
+                    rc.changeColor();
                 }
             }
         }

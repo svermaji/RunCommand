@@ -3,6 +3,10 @@ Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
 #### On 03-Sep-2020<br>
+* Bring filter closer to table, and some UI changes
+* Tooltips are better now
+
+#### On 03-Sep-2020<br>
 * Now favourite buttons added (max 5)
 * Most prominent actions can used, even at runtime by clicking reload.  User just need to add `*` at the start of command
 * If fav commands are less or more, rest will be ignored
@@ -40,3 +44,6 @@ Initial - Attaching screen shot of application:<br>
 
 3-Sep-2020 - Attaching screen shot, showing colors:<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-fav.png) 
+
+4-Sep-2020 - Attaching screen shot, new look, bring filter closer to table and some UI changes:<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-new-ui.png) 
