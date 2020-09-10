@@ -162,6 +162,8 @@ public class RunCommand extends AppFrame {
         lblInfo.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
 
         txtFilter = new JTextField(TXT_COLS);
+        lblFilter.setLabelFor(txtFilter);
+        lblFilter.setDisplayedMnemonic('F');
         txtFilter.getDocument().addDocumentListener(
                 new DocumentListener() {
                     public void changedUpdate(DocumentEvent e) {
