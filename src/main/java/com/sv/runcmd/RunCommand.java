@@ -7,6 +7,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.*;
@@ -30,14 +32,15 @@ public class RunCommand extends AppFrame {
     private int colorIdx = 0;
 
     public enum COLS {
-        IDX(0, "#", "center", 0),
-        COMMAND(1, "Commands", "left", -1);
+        IDX(0, "#", "", "center", 0),
+        COMMAND(1, "Commands", "Double click on row OR select & Enter", "left", -1);
 
-        String name, alignment;
+        String name, alignment, toolTip;
         int idx, width;
 
-        COLS(int idx, String name, String alignment, int width) {
+        COLS(int idx, String name, String toolTip, String alignment, int width) {
             this.name = name;
+            this.toolTip = toolTip;
             this.idx = idx;
             this.alignment = alignment;
             this.width = width;
@@ -57,6 +60,10 @@ public class RunCommand extends AppFrame {
 
         public int getWidth() {
             return width;
+        }
+
+        public String getToolTip() {
+            return toolTip;
         }
     }
 
@@ -247,6 +254,7 @@ public class RunCommand extends AppFrame {
                 b.setEnabled(enable);
             }
         }
+        tblCommands.setEnabled(enable);
     }
 
     private void enableControls() {
@@ -365,6 +373,7 @@ public class RunCommand extends AppFrame {
 
         Border borderBlue = new LineBorder(Color.BLUE, 1);
         tblCommands = new JTable(model);
+        tblCommands.setTableHeader(new RunTableHeaders (tblCommands.getColumnModel()));
         tblCommands.setBorder(borderBlue);
 
         sorter = new TableRowSorter<>(model);
@@ -630,4 +639,19 @@ public class RunCommand extends AppFrame {
     public String getRandomColors() {
         return jcbRandomColor.isSelected() + "";
     }
+
+    class RunTableHeaders extends JTableHeader {
+
+        public RunTableHeaders(TableColumnModel columnModel) {
+            super(columnModel);
+        }
+
+        public String getToolTipText(MouseEvent e) {
+            java.awt.Point p = e.getPoint();
+            int index = columnModel.getColumnIndexAtX(p.x);
+            int realIndex = columnModel.getColumn(index).getModelIndex();
+            return COLS.values()[realIndex].getToolTip();
+        }
+    }
 }
+
