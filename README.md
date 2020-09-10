@@ -2,6 +2,10 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 10-Sep-2020<br>
+* Disable/Enable controls between running command to avoid multiple runs
+* Update for UI
+
 #### On 03-Sep-2020<br>
 * Bring filter closer to table, and some UI changes
 * Tooltips are better now

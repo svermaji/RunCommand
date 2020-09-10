@@ -121,7 +121,7 @@ public class RunCommand extends AppFrame {
      * This method initializes the form.
      */
     private void initComponents() {
-        logger = MyLogger.createLogger("run-utility.log");
+        logger = MyLogger.createLogger("run-cmd.log");
 
         configs = new DefaultConfigs(logger);
 
@@ -236,6 +236,25 @@ public class RunCommand extends AppFrame {
         threadPool.submit(new ColorChangerCallable(this));
 
         setPosition();
+    }
+
+    private void updateControls(boolean enable) {
+        txtFilter.setEnabled(enable);
+        btnClear.setEnabled(enable);
+        btnReload.setEnabled(enable);
+        for (JButton b : btnFavs) {
+            if (!b.getText().equalsIgnoreCase("X")) {
+                b.setEnabled(enable);
+            }
+        }
+    }
+
+    private void enableControls() {
+        updateControls(true);
+    }
+
+    private void disableControls() {
+        updateControls(false);
     }
 
     private String checkLength(String s) {
@@ -422,6 +441,7 @@ public class RunCommand extends AppFrame {
     }
 
     private void runCommand(String cmd) {
+        disableControls();
         threadPool.submit(new RunCommandCallable(this, cmd));
     }
 
@@ -526,6 +546,7 @@ public class RunCommand extends AppFrame {
         @Override
         public Boolean call() {
             try {
+                Thread.sleep(500);
                 String cmdStr = rc.getCmdToRun(cmd);
                 rc.logger.log("Calling command [" + cmdStr + "]");
                 Runtime.getRuntime().exec(cmdStr);
@@ -535,6 +556,7 @@ public class RunCommand extends AppFrame {
             } catch (Exception e) {
                 rc.logger.error(e);
             }
+            rc.enableControls();
             return true;
         }
 
