@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
@@ -197,6 +198,8 @@ public class RunCommand extends AppFrame {
         redrawFavBtns();
 
         JPanel favBtnPanel = new JPanel(new GridBagLayout());
+        TitledBorder titledFP = new TitledBorder("Favourites (starts with *)");
+        favBtnPanel.setBorder(titledFP);
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.weightx = 0.5;
