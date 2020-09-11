@@ -354,10 +354,10 @@ public class RunCommand extends AppFrame {
             JButton b = btnFavs[idx.get()];
             b.setEnabled(true);
             b.setText(checkLength(getDisplayName(cmd)));
-            if (b.getActionListeners() != null && b.getActionListeners().length == 0) {
-                b.addActionListener(evt -> runCommand(cmd));
-            }
             b.setToolTipText(cmd);
+            if (b.getActionListeners() != null && b.getActionListeners().length == 0) {
+                b.addActionListener(evt -> runCommand(b.getToolTipText()));
+            }
             idx.getAndIncrement();
         }
     }
@@ -563,7 +563,6 @@ public class RunCommand extends AppFrame {
         @Override
         public Boolean call() {
             try {
-                Thread.sleep(500);
                 String cmdStr = rc.getCmdToRun(cmd);
                 rc.logger.log("Calling command [" + cmdStr + "]");
                 Runtime.getRuntime().exec(cmdStr);
@@ -635,8 +634,7 @@ public class RunCommand extends AppFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            int row = table.getSelectedRow();
-            runCommand(table.getValueAt(row, 0).toString());
+            runCommand(table.getValueAt(table.getSelectedRow(), 0).toString());
         }
     }
 
