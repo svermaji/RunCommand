@@ -70,9 +70,11 @@ public class RunCommand extends AppFrame {
     public enum COLOR {
         CYAN(Color.CYAN, Color.BLACK),
         BLACK(Color.BLACK, Color.GREEN),
-        GRAY(Color.GRAY, Color.BLACK),
+        GRAY(Color.GRAY, Color.WHITE),
         WHITE(Color.WHITE, Color.BLUE),
-        DEFAULT(Color.lightGray, Color.BLACK);
+        MAGENTA(Color.MAGENTA, Color.YELLOW),
+        ORANGE(Color.ORANGE, Color.WHITE),
+        DEFAULT(Color.LIGHT_GRAY, Color.BLACK);
 
         Color bk, fg;
 
@@ -284,7 +286,7 @@ public class RunCommand extends AppFrame {
     }
 
     private COLOR getNextColor() {
-        if (colorIdx == COLOR.values().length) {
+        if (colorIdx == COLOR.values().length - 1) {
             colorIdx = 0;
         }
         return COLOR.values()[colorIdx++];
@@ -349,10 +351,14 @@ public class RunCommand extends AppFrame {
             if (idx.get() >= FAV_BTN_LIMIT) {
                 break;
             }
-            btnFavs[idx.get()].setEnabled(true);
-            btnFavs[idx.get()].setText(checkLength(getDisplayName(cmd)));
-            btnFavs[idx.get()].addActionListener(evt -> runCommand(cmd));
-            btnFavs[idx.getAndIncrement()].setToolTipText(cmd);
+            JButton b = btnFavs[idx.get()];
+            b.setEnabled(true);
+            b.setText(checkLength(getDisplayName(cmd)));
+            if (b.getActionListeners() != null && b.getActionListeners().length == 0) {
+                b.addActionListener(evt -> runCommand(cmd));
+            }
+            b.setToolTipText(cmd);
+            idx.getAndIncrement();
         }
     }
 
@@ -375,7 +381,7 @@ public class RunCommand extends AppFrame {
 
         Border borderBlue = new LineBorder(Color.BLUE, 1);
         tblCommands = new JTable(model);
-        tblCommands.setTableHeader(new RunTableHeaders (tblCommands.getColumnModel()));
+        tblCommands.setTableHeader(new RunTableHeaders(tblCommands.getColumnModel()));
         tblCommands.setBorder(borderBlue);
 
         sorter = new TableRowSorter<>(model);
