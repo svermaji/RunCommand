@@ -149,10 +149,12 @@ public class RunCommand extends AppFrame {
                 Boolean.parseBoolean(configs.getConfig(DefaultConfigs.Config.RANDOM_THEMES)));
         jcbRandomThemes.setToolTipText(JCB_TOOL_TIP);
         jcbRandomThemes.addActionListener(evt -> changeTheme());
+        jcbRandomThemes.setMnemonic('T');
         jcbRandomColor = new JCheckBox(JCB_COLOR_TEXT,
                 Boolean.parseBoolean(configs.getConfig(DefaultConfigs.Config.RANDOM_COLORS)));
         jcbRandomColor.setToolTipText(JCB_TOOL_TIP);
         jcbRandomColor.addActionListener(evt -> changeColor());
+        jcbRandomColor.setMnemonic('O');
 
         Border lineBorder = new LineBorder(Color.black, 1);
         final int TXT_COLS = 20;
