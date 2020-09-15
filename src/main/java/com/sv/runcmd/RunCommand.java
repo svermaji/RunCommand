@@ -335,8 +335,9 @@ public class RunCommand extends AppFrame {
     }
 
     private void reloadFile() {
+        clearFilter();
         favs = new ArrayList<>();
-        clearOldRun();
+        clearOldRows();
         createRows();
         redrawFavBtns();
     }
@@ -467,7 +468,7 @@ public class RunCommand extends AppFrame {
         threadPool.submit(new RunCommandCallable(this, cmd));
     }
 
-    private void clearOldRun() {
+    private void clearOldRows() {
         //empty table
         IntStream.range(0, tblCommands.getRowCount()).forEach(i -> model.removeRow(0));
         createDefaultRows();
