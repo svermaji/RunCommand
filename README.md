@@ -2,6 +2,10 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 17-Sep-2020<br>
+* Create API version of same, now either call single command from `cmd.exe` or use UI
+* For how to use API refer `run-arg.bat`
+
 #### On 11-Sep-2020<br>
 * Added title for favourite buttons
 * Fixed few bugs
@@ -16,7 +20,7 @@ Utility in Java to run command like batch file or sh file or any other command
 
 #### On 03-Sep-2020<br>
 * Now favourite buttons added (max 5)
-* Most prominent actions can used, even at runtime by clicking reload.  User just need to add `*` at the start of command
+* Most prominent actions can used, even at runtime by clicking reload.  User just need to add `*` at the start of command.
 * If fav commands are less or more, rest will be ignored
 * Tooltip and Enable will be done accordingly
 * If name is long it will be trimmed (See image)

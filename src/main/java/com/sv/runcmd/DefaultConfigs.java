@@ -62,7 +62,7 @@ public class DefaultConfigs {
         logger.log ("Prop url calculated as: " + propUrl);
     }
 
-    public void saveConfig(RunCommand obj) {
+    public void saveConfig(Object obj) {
         logger.log ("Saving properties at " + propUrl.getPath());
         configs.clear();
         for (Config config : Config.values()) {
