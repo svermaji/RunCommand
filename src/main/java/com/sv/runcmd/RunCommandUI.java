@@ -161,14 +161,14 @@ public class RunCommandUI extends AppFrame {
         jcbRandomColor.addActionListener(evt -> changeColor());
         jcbRandomColor.setMnemonic('O');
 
-        Border lineBorder = new LineBorder(Color.black, 1);
+        Border lineBorder = new LineBorder(Color.black, 1, true);
         final int TXT_COLS = 20;
         JLabel lblFilter = new JLabel("Filter");
         lblInfo = new JLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
         lblInfo.setOpaque(true);
-        lblInfo.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        lblInfo.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
 
         txtFilter = new JTextField(TXT_COLS);
         lblFilter.setLabelFor(txtFilter);
@@ -294,6 +294,7 @@ public class RunCommandUI extends AppFrame {
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
+        lblInfo.setBorder(new LineBorder(color.getFg(), 1, true));
         lastColorApplied = color.name().toLowerCase();
         updateInfo();
     }
@@ -343,11 +344,13 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void reloadFile() {
+        disableControls();
         clearFilter();
         favs = new ArrayList<>();
         clearOldRows();
         createRows();
         redrawFavBtns();
+        enableControls();
     }
 
     private void cleanFavBtns() {

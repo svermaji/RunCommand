@@ -11,11 +11,12 @@ public class RunCommand {
     }
 
     public RunCommand(String[] args) {
-        logger = MyLogger.createLogger("run-cmd.log");
         if (args != null && args.length == 1) {
+            logger = MyLogger.createLogger("run-cmd-arg.log");
             execCommand(args[0]);
             Utils.sleep(1000);
         } else {
+            logger = MyLogger.createLogger("run-cmd.log");
             new RunCommandUI(this, logger);
         }
     }
