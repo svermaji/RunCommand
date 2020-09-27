@@ -7,6 +7,13 @@
     <artifactId>runcmd</artifactId>
     <version>1.0</version>
     <name>Run Command Utility</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.sv</groupId>
+            <artifactId>swing-ui</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
     <build>
         <plugins>
             <plugin>

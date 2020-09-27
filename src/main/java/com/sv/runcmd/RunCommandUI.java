@@ -1,5 +1,8 @@
 package com.sv.runcmd;
 
+import com.sv.core.*;
+import com.sv.swingui.*;
+
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -33,6 +36,10 @@ public class RunCommandUI extends AppFrame {
 
     private int themeIdx = 0;
     private int colorIdx = 0;
+
+    enum Configs {
+        RandomThemes, RandomColors
+    }
 
     public enum COLS {
         IDX(0, "#", "", "center", 0),
@@ -137,7 +144,7 @@ public class RunCommandUI extends AppFrame {
      */
     private void initComponents() {
 
-        configs = new DefaultConfigs(logger);
+        configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
 
         Container parentContainer = getContentPane();
         parentContainer.setLayout(new BorderLayout());
@@ -151,12 +158,12 @@ public class RunCommandUI extends AppFrame {
         Border emptyBorder = new EmptyBorder(new Insets(5, 5, 5, 5));
 
         jcbRandomThemes = new JCheckBox(JCB_THEME_TEXT,
-                Boolean.parseBoolean(configs.getConfig(DefaultConfigs.Config.RANDOM_THEMES)));
+                Boolean.parseBoolean(configs.getConfig(Configs.RandomThemes.name())));
         jcbRandomThemes.setToolTipText(JCB_TOOL_TIP);
         jcbRandomThemes.addActionListener(evt -> changeTheme());
         jcbRandomThemes.setMnemonic('T');
         jcbRandomColor = new JCheckBox(JCB_COLOR_TEXT,
-                Boolean.parseBoolean(configs.getConfig(DefaultConfigs.Config.RANDOM_COLORS)));
+                Boolean.parseBoolean(configs.getConfig(Configs.RandomColors.name())));
         jcbRandomColor.setToolTipText(JCB_TOOL_TIP);
         jcbRandomColor.addActionListener(evt -> changeColor());
         jcbRandomColor.setMnemonic('O');
@@ -192,7 +199,7 @@ public class RunCommandUI extends AppFrame {
         btnClear = new AppButton("Clear", 'C');
         btnClear.addActionListener(evt -> clearFilter());
 
-        JButton btnExit = new AppExitButton();
+        JButton btnExit = new AppExitButton(true);
 
         createTable();
         btnFavs = new JButton[FAV_BTN_LIMIT];
