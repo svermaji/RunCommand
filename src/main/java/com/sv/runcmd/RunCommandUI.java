@@ -160,7 +160,7 @@ public class RunCommandUI extends AppFrame {
         Container parentContainer = getContentPane();
         parentContainer.setLayout(new BorderLayout());
 
-        setIconImage(new ImageIcon("./app-icon.png").getImage());
+        setIconImage(new ImageIcon("./icons/app-icon.png").getImage());
         setTitle(APP_TITLE);
 
         lookAndFeels = UIManager.getInstalledLookAndFeels();
