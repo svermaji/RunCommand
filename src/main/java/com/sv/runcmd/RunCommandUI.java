@@ -77,7 +77,7 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    public enum COLOR {
+    public enum AppColor {
         CYAN_BLACK(Color.CYAN, Color.BLACK, "Calibri"),
         BLACK_GREEN(Color.BLACK, Color.GREEN, "Algerian"),
         GRAY_WHITE(Color.GRAY, Color.WHITE, "Elephant"),
@@ -94,7 +94,7 @@ public class RunCommandUI extends AppFrame {
         Color bk, fg;
         String font;
 
-        COLOR(Color bk, Color fg, String font) {
+        AppColor(Color bk, Color fg, String font) {
             this.bk = bk;
             this.fg = fg;
             this.font = font;
@@ -308,7 +308,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void changeColor() {
-        COLOR color = jcbRandomColor.isSelected() ? getNextColor() : COLOR.DEFAULT;
+        AppColor color = jcbRandomColor.isSelected() ? getNextColor() : AppColor.DEFAULT;
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
@@ -320,11 +320,11 @@ public class RunCommandUI extends AppFrame {
         updateInfo();
     }
 
-    private COLOR getNextColor() {
-        if (colorIdx == COLOR.values().length) {
+    private AppColor getNextColor() {
+        if (colorIdx == AppColor.values().length) {
             colorIdx = 0;
         }
-        return COLOR.values()[colorIdx++];
+        return AppColor.values()[colorIdx++];
     }
 
     private void changeTheme() {
