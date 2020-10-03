@@ -1,6 +1,8 @@
 package com.sv.runcmd;
 
-import com.sv.core.*;
+import com.sv.core.DefaultConfigs;
+import com.sv.core.MyLogger;
+import com.sv.core.Utils;
 import com.sv.swingui.*;
 
 import javax.swing.*;
@@ -14,17 +16,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
-import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -114,7 +113,7 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    private static final long THEME_COLOR_CHANGE_TIME = 5000;//TimeUnit.MINUTES.toMillis(10);
+    private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
