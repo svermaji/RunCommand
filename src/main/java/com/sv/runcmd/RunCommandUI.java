@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -78,19 +79,26 @@ public class RunCommandUI extends AppFrame {
     }
 
     public enum COLOR {
-        CYAN(Color.CYAN, Color.BLACK),
-        BLACK(Color.BLACK, Color.GREEN),
-        GRAY(Color.GRAY, Color.WHITE),
-        WHITE(Color.WHITE, Color.BLUE),
-        MAGENTA(Color.MAGENTA, Color.YELLOW),
-        ORANGE(Color.ORANGE, Color.WHITE),
-        DEFAULT(Color.LIGHT_GRAY, Color.BLACK);
+        CYAN_BLACK(Color.CYAN, Color.BLACK, "Calibri"),
+        BLACK_GREEN(Color.BLACK, Color.GREEN, "Algerian"),
+        GRAY_WHITE(Color.GRAY, Color.WHITE, "Elephant"),
+        GREEN_WHITE(new Color(57, 172, 170), Color.WHITE, "Lucida Bright"),
+        WHITE_BLUE(Color.WHITE, Color.BLUE, "Lucida Calligraphy Italic"),
+        BLACK_RED(Color.BLACK, Color.RED, "Segoe UI"),
+        MAGENTA_YELLOW(Color.MAGENTA, Color.YELLOW, "Tahoma"),
+        BLUE_WHITE(new Color(32, 145, 255), Color.WHITE, "Times New Roman"),
+        BLACK_PURPLE(Color.BLACK, new Color(143, 85, 173), "Vardana"),
+        TEALGREEN_WHITE(new Color(0, 128, 128), Color.WHITE, "Arial Black"),
+        ORANGE_WHITE(Color.ORANGE, Color.WHITE, "Comic Sans MS"),
+        DEFAULT(Color.LIGHT_GRAY, Color.BLACK, "Consolas");
 
         Color bk, fg;
+        String font;
 
-        COLOR(Color bk, Color fg) {
+        COLOR(Color bk, Color fg, String font) {
             this.bk = bk;
             this.fg = fg;
+            this.font = font;
         }
 
         public Color getBk() {
@@ -100,9 +108,13 @@ public class RunCommandUI extends AppFrame {
         public Color getFg() {
             return fg;
         }
+
+        public String getFont() {
+            return font;
+        }
     }
 
-    private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
+    private static final long THEME_COLOR_CHANGE_TIME = 5000;//TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
@@ -168,14 +180,14 @@ public class RunCommandUI extends AppFrame {
         jcbRandomColor.addActionListener(evt -> changeColor());
         jcbRandomColor.setMnemonic('O');
 
-        Border lineBorder = new LineBorder(Color.black, 1, true);
+        Border lineBorder = new LineBorder(Color.black, 5, true);
         final int TXT_COLS = 20;
         JLabel lblFilter = new JLabel("Filter");
         lblInfo = new JLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
         lblInfo.setOpaque(true);
-        lblInfo.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
+        lblInfo.setFont(SwingUtils.getCalibriFont(Font.BOLD, 16));
 
         txtFilter = new JTextField(TXT_COLS);
         lblFilter.setLabelFor(txtFilter);
@@ -301,13 +313,16 @@ public class RunCommandUI extends AppFrame {
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
-        lblInfo.setBorder(new LineBorder(color.getFg(), 1, true));
+        Font font = new Font(color.getFont(), Font.BOLD, 16);
+        logger.log("Applying font: " + font.getName());
+        lblInfo.setFont(font);
+        lblInfo.setBorder(new LineBorder(color.getFg(), 5, true));
         lastColorApplied = color.name().toLowerCase();
         updateInfo();
     }
 
     private COLOR getNextColor() {
-        if (colorIdx == COLOR.values().length - 1) {
+        if (colorIdx == COLOR.values().length) {
             colorIdx = 0;
         }
         return COLOR.values()[colorIdx++];
@@ -462,7 +477,9 @@ public class RunCommandUI extends AppFrame {
         }
         if (lastColorApplied != null) {
             jcbRandomColor.setText(JCB_COLOR_TEXT + " (" + lastColorApplied + ")");
-            jcbRandomColor.setToolTipText(JCB_TOOL_TIP + ". Present color: " + lastColorApplied);
+            Font f = lblInfo.getFont();
+            jcbRandomColor.setToolTipText(JCB_TOOL_TIP + ". Present color: " + lastColorApplied
+                    + ", Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize());
         }
         logger.log("Thread pool current size: " + threadPool.toString());
     }
