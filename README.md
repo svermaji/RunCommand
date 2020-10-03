@@ -24,22 +24,22 @@ Utility in Java to run command like batch file or sh file or any other command
 
 #### Images<br>
 Initial - Attaching screen shot of application:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image.png) 
 
 2-Sep-2020 - Attaching screen shot, now user can have themes and colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-theme-color.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-theme-color.png) 
 
 2-Sep-2020 - Attaching screen shot, showing colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-theme-color-2.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-theme-color-2.png) 
 
 3-Sep-2020 - Attaching screen shot, showing colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-fav.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-fav.png) 
 
 4-Sep-2020 - Attaching screen shot, new look, bring filter closer to table and some UI changes:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-new-ui.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-new-ui.png) 
 
 11-Sep-2020 - Attaching screen shot, favourite title:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-fav-2.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-fav-2.png) 
 
 22-Sep-2020 - Attaching screen shot, rounded border and bold font:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-bold.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-bold.png) 
