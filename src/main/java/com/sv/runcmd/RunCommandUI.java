@@ -113,7 +113,7 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
+    private static final long THEME_COLOR_CHANGE_TIME = 5000;//TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
@@ -131,6 +131,7 @@ public class RunCommandUI extends AppFrame {
     private JButton[] btnFavs;
     private List<String> favs;
     private final int FAV_BTN_LIMIT = 5;
+    private final int LBL_INFO_FONT_SIZE = 14;
     private JCheckBox jcbRandomThemes, jcbRandomColor;
 
     private final String JCB_THEME_TEXT = "random themes";
@@ -186,7 +187,7 @@ public class RunCommandUI extends AppFrame {
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
         lblInfo.setOpaque(true);
-        lblInfo.setFont(SwingUtils.getCalibriFont(Font.BOLD, 16));
+        lblInfo.setFont(SwingUtils.getCalibriFont(Font.BOLD, LBL_INFO_FONT_SIZE));
 
         txtFilter = new JTextField(TXT_COLS);
         lblFilter.setLabelFor(txtFilter);
@@ -312,12 +313,16 @@ public class RunCommandUI extends AppFrame {
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
-        Font font = new Font(color.getFont(), Font.BOLD, 16);
+        Font font = getLblInfoFont(color.getFont());
         logger.log("Applying font: " + font.getName());
-        lblInfo.setFont(font);
-        lblInfo.setBorder(new LineBorder(color.getFg(), 5, true));
+        lblInfo.setFont(getLblInfoFont(color.getFont()));
+        lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
         lastColorApplied = color.name().toLowerCase();
         updateInfo();
+    }
+
+    private Font getLblInfoFont(String font) {
+        return new Font(font, Font.BOLD, LBL_INFO_FONT_SIZE);
     }
 
     private AppColor getNextColor() {
@@ -467,11 +472,11 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void updateInfo() {
-        if (lastCmdRun != null) {
+        /*if (lastCmdRun != null) {
             lblInfo.setText("Last command tried: " + lastCmdRun);
-        }
+        }*/
         if (lastThemeApplied != null) {
-            jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + lastThemeApplied + ")");
+            jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + Utils.ELLIPSIS + ")");
             jcbRandomThemes.setToolTipText(JCB_TOOL_TIP + ". Present theme: " + lastThemeApplied);
         }
         if (lastColorApplied != null) {
@@ -480,6 +485,11 @@ public class RunCommandUI extends AppFrame {
             jcbRandomColor.setToolTipText(JCB_TOOL_TIP + ". Present color: " + lastColorApplied
                     + ", Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize());
         }
+        Font f = lblInfo.getFont();
+        lblInfo.setText(lastThemeApplied + ", " + f.getName());
+        String tip = "Present theme: " + lastThemeApplied + ". Present color: " + lastColorApplied
+                + ", Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize();
+        lblInfo.setToolTipText(tip);
         logger.log("Thread pool current size: " + threadPool.toString());
     }
 
