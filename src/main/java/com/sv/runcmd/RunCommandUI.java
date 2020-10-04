@@ -113,7 +113,7 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    private static final long THEME_COLOR_CHANGE_TIME = 5000;//TimeUnit.MINUTES.toMillis(10);
+    private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
@@ -472,9 +472,6 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void updateInfo() {
-        /*if (lastCmdRun != null) {
-            lblInfo.setText("Last command tried: " + lastCmdRun);
-        }*/
         if (lastThemeApplied != null) {
             jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + Utils.ELLIPSIS + ")");
             jcbRandomThemes.setToolTipText(JCB_TOOL_TIP + ". Present theme: " + lastThemeApplied);
