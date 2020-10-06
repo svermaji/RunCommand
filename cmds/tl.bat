@@ -1,0 +1,1 @@
+tasklist /v /fo csv /fi "imagename eq %1" | find /i "%2"

@@ -3,13 +3,14 @@ Utility in Java to run command like batch file or sh file or any other command
 
 ## Description<br>
 * For date wise changes refer Details-README.md
-* This program give UI and commands from a configuration<br>
-* User can either double-click using mouse or press enter key to run selected command<br>
-* Command can be foreground or background, cmd screen may or may not visible<br>
-* If there are large number of commands, user can use filter<br>
-* At runtime "Reload" button can be used to refresh commands<br>
-    - Example: If batch file called as `start BATCHFILE` then process will be in foreground<br>
-    - Example: If batch file called as `BATCHFILE` then process will be in background<br>
+* This program give UI and commands from a configuration
+* User can use script to kill task which is image of cmd.exe or java.exe (No need to create batch file for that)
+* User can either double-click using mouse or press enter key to run selected command
+* Command can be foreground or background, cmd screen may or may not visible
+* If there are large number of commands, user can use filter
+* At runtime "Reload" button can be used to refresh commands
+    - Example: If batch file called as `start BATCHFILE` then process will be in foreground
+    - Example: If batch file called as `BATCHFILE` then process will be in background
 * Different log file for different modes (UI/API)
     - Create API version of same, now either call single command from `cmd.exe` or use UI
     - For how to use API refer `run-arg.bat`
