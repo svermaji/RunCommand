@@ -217,6 +217,8 @@ public class RunCommandUI extends AppFrame {
         btnFavs = new JButton[FAV_BTN_LIMIT];
         for (int i = 0; i < FAV_BTN_LIMIT; i++) {
             btnFavs[i] = new JButton();
+            String mne = "" + (i+1);
+            btnFavs[i].setMnemonic(mne.charAt(0));
         }
         redrawFavBtns();
 
@@ -397,7 +399,7 @@ public class RunCommandUI extends AppFrame {
             JButton b = btnFavs[idx.get()];
             b.setEnabled(true);
             b.setText(checkLength(getDisplayName(cmd)));
-            b.setToolTipText(cmd);
+            b.setToolTipText(cmd + ". Shortcut: Alt+"+(idx.intValue()+1));
             if (b.getActionListeners() != null && b.getActionListeners().length == 0) {
                 b.addActionListener(evt -> execCommand(b.getToolTipText()));
             }
