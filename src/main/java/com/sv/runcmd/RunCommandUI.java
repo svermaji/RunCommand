@@ -217,8 +217,7 @@ public class RunCommandUI extends AppFrame {
         btnFavs = new JButton[FAV_BTN_LIMIT];
         for (int i = 0; i < FAV_BTN_LIMIT; i++) {
             btnFavs[i] = new JButton();
-            String mne = "" + (i+1);
-            btnFavs[i].setMnemonic(mne.charAt(0));
+            btnFavs[i].setMnemonic(("" + (i+1)).charAt(0));
         }
         redrawFavBtns();
 
