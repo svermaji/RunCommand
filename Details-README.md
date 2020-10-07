@@ -2,6 +2,9 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 7-Oct-2020<br>
+* In conf.config favourite button limit can be defined as 5 or 10
+
 #### On 22-Sep-2020<br>
 * UI Fixes, used rounded border which changes color as information label does.  Made information font bolder and bigger
 * Different log file for different mode (UI/API)

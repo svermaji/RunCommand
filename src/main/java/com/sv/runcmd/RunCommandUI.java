@@ -38,7 +38,7 @@ public class RunCommandUI extends AppFrame {
     private int colorIdx = 0;
 
     enum Configs {
-        RandomThemes, RandomColors
+        RandomThemes, RandomColors, FavBtnLimit
     }
 
     public enum COLS {
@@ -118,7 +118,7 @@ public class RunCommandUI extends AppFrame {
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
 
-    private static String lastCmdRun, lastThemeApplied, lastColorApplied;
+    private static String lastCmdRun = "none", lastThemeApplied, lastColorApplied;
 
     private final MyLogger logger;
     private DefaultConfigs configs;
@@ -130,7 +130,9 @@ public class RunCommandUI extends AppFrame {
     private JButton btnReload, btnClear;
     private JButton[] btnFavs;
     private List<String> favs;
-    private final int FAV_BTN_LIMIT = 5;
+    // Should be either 5 or 10
+    private int favBtnLimit = 10;
+    private final int BTN_IN_A_ROW = 5;
     private final int LBL_INFO_FONT_SIZE = 14;
     private JCheckBox jcbRandomThemes, jcbRandomColor;
 
@@ -157,6 +159,21 @@ public class RunCommandUI extends AppFrame {
     private void initComponents() {
 
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
+
+        final int MAX_FAV_ALLOWED = 10;
+        final int MIN_FAV_ALLOWED = 5;
+        favBtnLimit = configs.getIntConfig(Configs.FavBtnLimit.name());
+        // if config value of < 5
+        if (favBtnLimit < MIN_FAV_ALLOWED) {
+            logger.log("favBtnLimit reset to " + MIN_FAV_ALLOWED);
+            favBtnLimit = MIN_FAV_ALLOWED;
+        }
+        // if config value is between 6 to 9 or greater than 10
+        if (favBtnLimit > MIN_FAV_ALLOWED && favBtnLimit != MAX_FAV_ALLOWED) {
+            logger.log("favBtnLimit reset to " + MAX_FAV_ALLOWED);
+            favBtnLimit = MAX_FAV_ALLOWED;
+        }
+        logger.log("favBtnLimit = " + favBtnLimit);
 
         Container parentContainer = getContentPane();
         parentContainer.setLayout(new BorderLayout());
@@ -214,14 +231,22 @@ public class RunCommandUI extends AppFrame {
         JButton btnExit = new AppExitButton(true);
 
         createTable();
-        btnFavs = new JButton[FAV_BTN_LIMIT];
-        for (int i = 0; i < FAV_BTN_LIMIT; i++) {
-            btnFavs[i] = new JButton();
-            btnFavs[i].setMnemonic(("" + (i+1)).charAt(0));
+        btnFavs = new JButton[favBtnLimit];
+        for (int i = 0; i < favBtnLimit; i++) {
+            String s = "" + (i == 9 ? 0 : i + 1);
+            JButton b = new AppButton(s, s.charAt(0));
+            b.addActionListener(evt -> execCommand(b.getToolTipText()));
+            btnFavs[i] = b;
         }
         redrawFavBtns();
 
-        JPanel favBtnPanel = new JPanel(new GridBagLayout());
+        JPanel favBtnPanel = new JPanel(new GridLayout(favBtnLimit / BTN_IN_A_ROW, 1));
+        JPanel favBtnPanel1 = new JPanel(new GridBagLayout());
+        JPanel favBtnPanel2 = new JPanel(new GridBagLayout());
+        favBtnPanel.add(favBtnPanel1);
+        if (btnFavs.length > BTN_IN_A_ROW) {
+            favBtnPanel.add(favBtnPanel2);
+        }
         TitledBorder titledFP = new TitledBorder("Favourites (starts with *)");
         favBtnPanel.setBorder(titledFP);
         GridBagConstraints c = new GridBagConstraints();
@@ -229,9 +254,14 @@ public class RunCommandUI extends AppFrame {
         c.weightx = 0.5;
         c.gridx = 0;
         c.gridy = 0;
-        for (JButton b : btnFavs) {
+        for (int i = 0; i < btnFavs.length; i++) {
+            JButton b = btnFavs[i];
             c.gridx++;
-            favBtnPanel.add(b, c);
+            if (i < BTN_IN_A_ROW) {
+                favBtnPanel1.add(b, c);
+            } else {
+                favBtnPanel2.add(b, c);
+            }
         }
 
         JPanel controlPanel = new JPanel();
@@ -392,16 +422,13 @@ public class RunCommandUI extends AppFrame {
         cleanFavBtns();
         AtomicInteger idx = new AtomicInteger();
         for (String cmd : favs) {
-            if (idx.get() >= FAV_BTN_LIMIT) {
+            if (idx.get() >= favBtnLimit) {
                 break;
             }
             JButton b = btnFavs[idx.get()];
             b.setEnabled(true);
             b.setText(checkLength(getDisplayName(cmd)));
-            b.setToolTipText(cmd + ". Shortcut: Alt+"+(idx.intValue()+1));
-            if (b.getActionListeners() != null && b.getActionListeners().length == 0) {
-                b.addActionListener(evt -> execCommand(b.getToolTipText()));
-            }
+            b.setToolTipText(cmd + ". Shortcut: Alt+" + (idx.intValue() == 9 ? 0 : (idx.intValue() + 1)));
             idx.getAndIncrement();
         }
     }
@@ -485,10 +512,13 @@ public class RunCommandUI extends AppFrame {
         }
         Font f = lblInfo.getFont();
         lblInfo.setText(lastThemeApplied + ", " + f.getName());
-        String tip = "Present theme: " + lastThemeApplied + ". Present color: " + lastColorApplied
-                + ", Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize();
+        String tip = "Last Command Run [" + lastCmdRun
+                + "] Present theme [" + lastThemeApplied
+                + "] Present color [" + lastColorApplied
+                + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
+                + "]";
         lblInfo.setToolTipText(tip);
-        logger.log("Thread pool current size: " + threadPool.toString());
+        logger.log(tip + ", Thread pool current size: " + threadPool.toString());
     }
 
     private void updateTitle(String subTitle) {
@@ -562,8 +592,10 @@ public class RunCommandUI extends AppFrame {
         Rectangle bounds = config.getBounds();
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
 
-        if (tblCommands.getRowCount() > (DEFAULT_NUM_ROWS * 1.5) / 2) {
-            setSize(getWidth(), (int) (getHeight() * 1.5));
+        if (favBtnLimit <= BTN_IN_A_ROW) {
+            if (tblCommands.getRowCount() > (DEFAULT_NUM_ROWS * 1.5) / 2) {
+                setSize(getWidth(), (int) (getHeight() * 1.5));
+            }
         }
 
         int x = bounds.x + bounds.width - insets.right - getWidth();
@@ -686,6 +718,10 @@ public class RunCommandUI extends AppFrame {
 
     public String getRandomColors() {
         return jcbRandomColor.isSelected() + "";
+    }
+
+    public String getFavBtnLimit() {
+        return favBtnLimit + "";
     }
 
     static class RunTableHeaders extends JTableHeader {
