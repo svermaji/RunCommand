@@ -2,6 +2,10 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 8-Oct-2020<br>
+* Indexing on favourite buttons can be controlled by configuration
+
+
 #### On 7-Oct-2020<br>
 * In conf.config favourite button limit can be defined as 5 or 10
 

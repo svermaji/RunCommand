@@ -5,6 +5,7 @@ Utility in Java to run command like batch file or sh file or any other command
 * For date wise changes refer Details-README.md
 * This program give UI and commands from a configuration
 * In conf.config favourite button limit can be defined as 5 or 10
+* Indexing on favourite buttons can be controlled by configuration
 * User can use script to kill task which is image of cmd.exe or java.exe (No need to create batch file for that)
 * User can either double-click using mouse or press enter key to run selected command
 * Command can be foreground or background, cmd screen may or may not visible

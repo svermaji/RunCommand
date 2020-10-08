@@ -38,7 +38,7 @@ public class RunCommandUI extends AppFrame {
     private int colorIdx = 0;
 
     enum Configs {
-        RandomThemes, RandomColors, FavBtnLimit
+        RandomThemes, RandomColors, FavBtnLimit, NumOnFav
     }
 
     public enum COLS {
@@ -131,6 +131,7 @@ public class RunCommandUI extends AppFrame {
     private JButton[] btnFavs;
     private List<String> favs;
     // Should be either 5 or 10
+    private boolean numOnFav = false;
     private int favBtnLimit = 10;
     private final int BTN_IN_A_ROW = 5;
     private final int LBL_INFO_FONT_SIZE = 14;
@@ -173,7 +174,8 @@ public class RunCommandUI extends AppFrame {
             logger.log("favBtnLimit reset to " + MAX_FAV_ALLOWED);
             favBtnLimit = MAX_FAV_ALLOWED;
         }
-        logger.log("favBtnLimit = " + favBtnLimit);
+        numOnFav = configs.getBooleanConfig(Configs.NumOnFav.name());
+        logger.log("favBtnLimit = " + favBtnLimit + ", numOnFav = " + numOnFav);
 
         Container parentContainer = getContentPane();
         parentContainer.setLayout(new BorderLayout());
@@ -427,7 +429,9 @@ public class RunCommandUI extends AppFrame {
             }
             JButton b = btnFavs[idx.get()];
             b.setEnabled(true);
-            b.setText(checkLength(getDisplayName(cmd)));
+            String nm = "" + (numOnFav ? (idx.intValue() == 9 ? 0 : (idx.intValue() + 1)) + " " : "");
+            nm += getDisplayName(cmd);
+            b.setText(checkLength(nm));
             b.setToolTipText(cmd + ". Shortcut: Alt+" + (idx.intValue() == 9 ? 0 : (idx.intValue() + 1)));
             idx.getAndIncrement();
         }
@@ -720,6 +724,10 @@ public class RunCommandUI extends AppFrame {
 
     public String getFavBtnLimit() {
         return favBtnLimit + "";
+    }
+
+    public String getNumOnFav() {
+        return numOnFav + "";
     }
 
     static class RunTableHeaders extends JTableHeader {
