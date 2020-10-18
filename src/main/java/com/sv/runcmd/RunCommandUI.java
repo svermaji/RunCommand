@@ -205,20 +205,7 @@ public class RunCommandUI extends AppFrame {
         txtFilter = new JTextField(TXT_COLS);
         lblFilter.setLabelFor(txtFilter);
         lblFilter.setDisplayedMnemonic('F');
-        /*txtFilter.getDocument().addDocumentListener(
-                new DocumentListener() {
-                    public void changedUpdate(DocumentEvent e) {
-                        addFilter();
-                    }
 
-                    public void insertUpdate(DocumentEvent e) {
-                        addFilter();
-                    }
-
-                    public void removeUpdate(DocumentEvent e) {
-                        addFilter();
-                    }
-                });*/
         btnReload = new AppButton("Reload", 'R');
         btnReload.addActionListener(evt -> reloadFile());
         btnClear = new AppButton("Clear", 'C');
@@ -302,8 +289,6 @@ public class RunCommandUI extends AppFrame {
         new Timer().schedule(new ColorChangerTask(this), 0, THEME_COLOR_CHANGE_TIME);
 
         setControlsToEnable();
-        /*threadPool.submit(new ThemeChangerCallable(this));
-        threadPool.submit(new ColorChangerCallable(this));*/
 
         setPosition();
     }
