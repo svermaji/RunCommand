@@ -180,7 +180,7 @@ public class RunCommandUI extends AppFrame {
         lookAndFeels = UIManager.getInstalledLookAndFeels();
         favs = new ArrayList<>();
 
-        Border emptyBorder = new EmptyBorder(new Insets(5, 5, 5, 5));
+        //Border emptyBorder = new EmptyBorder(new Insets(5, 5, 5, 5));
 
         jcbRandomThemes = new JCheckBox(JCB_THEME_TEXT,
                 Boolean.parseBoolean(configs.getConfig(Configs.RandomThemes.name())));
@@ -251,13 +251,13 @@ public class RunCommandUI extends AppFrame {
         controlPanel.setLayout(new GridBagLayout());
         controlPanel.add(jcbRandomThemes);
         controlPanel.add(jcbRandomColor);
-        controlPanel.setBorder(emptyBorder);
+        controlPanel.setBorder(SwingUtils.EMPTY_BORDER);
 
         JPanel topPanel = new JPanel(new GridLayout(3, 1));
         topPanel.add(lblInfo);
         topPanel.add(controlPanel);
         topPanel.add(favBtnPanel);
-        topPanel.setBorder(emptyBorder);
+        topPanel.setBorder(SwingUtils.EMPTY_BORDER);
 
         JPanel lowerPanel = new JPanel(new BorderLayout());
         JScrollPane jspCmds = new JScrollPane(tblCommands);
@@ -269,11 +269,11 @@ public class RunCommandUI extends AppFrame {
         filterPanel.add(btnClear);
         filterPanel.add(btnReload);
         filterPanel.add(btnExit);
-        filterPanel.setBorder(emptyBorder);
+        filterPanel.setBorder(SwingUtils.EMPTY_BORDER);
 
         lowerPanel.add(filterPanel, BorderLayout.NORTH);
         lowerPanel.add(jspCmds, BorderLayout.CENTER);
-        lowerPanel.setBorder(emptyBorder);
+        lowerPanel.setBorder(SwingUtils.EMPTY_BORDER);
 
         parentContainer.add(topPanel, BorderLayout.NORTH);
         parentContainer.add(lowerPanel, BorderLayout.CENTER);
@@ -289,7 +289,6 @@ public class RunCommandUI extends AppFrame {
         new Timer().schedule(new ColorChangerTask(this), 0, THEME_COLOR_CHANGE_TIME);
 
         setControlsToEnable();
-
         setPosition();
     }
 
@@ -372,9 +371,10 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void createDefaultRows() {
-        String[] emptyRow = new String[COLS.values().length];
+        SwingUtils.createEmptyRows(COLS.values().length, DEFAULT_NUM_ROWS, model);
+        /*String[] emptyRow = new String[COLS.values().length];
         Arrays.fill(emptyRow, Utils.EMPTY);
-        IntStream.range(0, DEFAULT_NUM_ROWS).forEach(i -> model.addRow(emptyRow));
+        IntStream.range(0, DEFAULT_NUM_ROWS).forEach(i -> model.addRow(emptyRow));*/
     }
 
     private void reloadFile() {
