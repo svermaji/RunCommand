@@ -3,6 +3,7 @@ package com.sv.runcmd;
 import com.sv.core.DefaultConfigs;
 import com.sv.core.MyLogger;
 import com.sv.core.Utils;
+import com.sv.runcmd.helpers.*;
 import com.sv.swingui.*;
 
 import javax.swing.*;
@@ -10,26 +11,21 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
-import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.PatternSyntaxException;
 import java.util.stream.IntStream;
 
 public class RunCommandUI extends AppFrame {
@@ -124,7 +120,7 @@ public class RunCommandUI extends AppFrame {
     private DefaultConfigs configs;
     private DefaultTableModel model;
     private JLabel lblInfo;
-    private JTable tblCommands;
+    private AppTable tblCommands;
 
     private JTextField txtFilter;
     private JButton btnReload, btnClear;
@@ -142,16 +138,15 @@ public class RunCommandUI extends AppFrame {
 
     private UIManager.LookAndFeelInfo[] lookAndFeels;
 
-    private TableRowSorter<DefaultTableModel> sorter;
-
     private final RunCommand runCommand;
 
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(5);
 
     public RunCommandUI(RunCommand runCommand, MyLogger logger) {
+        super(APP_TITLE);
         this.runCommand = runCommand;
         this.logger = logger;
-        initComponents();
+        SwingUtilities.invokeLater(this::initComponents);
     }
 
     /**
@@ -181,7 +176,6 @@ public class RunCommandUI extends AppFrame {
         parentContainer.setLayout(new BorderLayout());
 
         setIconImage(new ImageIcon("./icons/app-icon.png").getImage());
-        setTitle(APP_TITLE);
 
         lookAndFeels = UIManager.getInstalledLookAndFeels();
         favs = new ArrayList<>();
@@ -211,7 +205,7 @@ public class RunCommandUI extends AppFrame {
         txtFilter = new JTextField(TXT_COLS);
         lblFilter.setLabelFor(txtFilter);
         lblFilter.setDisplayedMnemonic('F');
-        txtFilter.getDocument().addDocumentListener(
+        /*txtFilter.getDocument().addDocumentListener(
                 new DocumentListener() {
                     public void changedUpdate(DocumentEvent e) {
                         addFilter();
@@ -224,7 +218,7 @@ public class RunCommandUI extends AppFrame {
                     public void removeUpdate(DocumentEvent e) {
                         addFilter();
                     }
-                });
+                });*/
         btnReload = new AppButton("Reload", 'R');
         btnReload.addActionListener(evt -> reloadFile());
         btnClear = new AppButton("Clear", 'C');
@@ -307,30 +301,26 @@ public class RunCommandUI extends AppFrame {
         new Timer().schedule(new ThemeChangerTask(this), 0, THEME_COLOR_CHANGE_TIME);
         new Timer().schedule(new ColorChangerTask(this), 0, THEME_COLOR_CHANGE_TIME);
 
+        setControlsToEnable();
         /*threadPool.submit(new ThemeChangerCallable(this));
         threadPool.submit(new ColorChangerCallable(this));*/
 
         setPosition();
     }
 
-    private void updateControls(boolean enable) {
-        txtFilter.setEnabled(enable);
-        btnClear.setEnabled(enable);
-        btnReload.setEnabled(enable);
-        for (JButton b : btnFavs) {
-            if (!b.getText().equalsIgnoreCase("X")) {
-                b.setEnabled(enable);
-            }
-        }
-        tblCommands.setEnabled(enable);
-    }
+    private void setControlsToEnable() {
+        List<Component> cmpList = new ArrayList<>();
 
-    private void enableControls() {
-        updateControls(true);
-    }
+        cmpList.add(txtFilter);
+        cmpList.add(btnClear);
+        cmpList.add(btnReload);
+        cmpList.add(tblCommands);
+        cmpList.addAll(Arrays.asList(btnFavs));
 
-    private void disableControls() {
-        updateControls(false);
+        Component[] components = cmpList.toArray(new Component[0]);
+        setComponentToEnable(components);
+        //setComponentContrastToEnable(null);
+        enableControls();
     }
 
     private String checkLength(String s) {
@@ -341,7 +331,7 @@ public class RunCommandUI extends AppFrame {
         return s;
     }
 
-    private void changeColor() {
+    public void changeColor() {
         AppColor color = jcbRandomColor.isSelected() ? getNextColor() : AppColor.DEFAULT;
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
@@ -365,7 +355,7 @@ public class RunCommandUI extends AppFrame {
         return AppColor.values()[colorIdx++];
     }
 
-    private void changeTheme() {
+    public void changeTheme() {
         try {
             if (jcbRandomThemes.isSelected()) {
                 String lfClass = getNextLookAndFeel();
@@ -437,39 +427,35 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
+    // This will be called by reflection from SwingUI jar
+    public void handleDblClickOnRow(AppTable table, Object[] p) {
+        execCommand(table.getValueAt(table.getSelectedRow(), 0).toString());
+    }
+
+    private void setUpSorterAndFilter(RunCommandUI obj, AppTable table,
+                                      DefaultTableModel model, JTextField txtFilter) {
+        table.addSorter(model);
+        table.addFilter(txtFilter);
+        table.addDblClickOnRow(obj, new Object[]{});
+        table.addEnterOnRow(new RunCommandAction(this, table));
+        table.applyChangeListener(txtFilter);
+    }
+
     private void createTable() {
-        model = new DefaultTableModel() {
-
-            @Override
-            public int getColumnCount() {
-                return COLS.values().length;
-            }
-
-            @Override
-            public String getColumnName(int index) {
-                return COLS.values()[index].getName();
-            }
-
-        };
+        model = SwingUtils.getTableModel(
+                Arrays.stream(COLS.class.getEnumConstants()).map(COLS::getName).toArray(String[]::new)
+        );
 
         createDefaultRows();
 
         Border borderBlue = new LineBorder(Color.BLUE, 1);
-        tblCommands = new JTable(model);
-        tblCommands.setTableHeader(new RunTableHeaders(tblCommands.getColumnModel()));
+        tblCommands = new AppTable(model);
+        tblCommands.setTableHeader(new TableHeaderToolTip(tblCommands.getColumnModel(),
+                Arrays.stream(COLS.class.getEnumConstants()).map(COLS::getToolTip).toArray(String[]::new)
+        ));
         tblCommands.setBorder(borderBlue);
 
-        sorter = new TableRowSorter<>(model);
-        tblCommands.setRowSorter(sorter);
-
-        addFilter();
-
-        // For making contents non editable
-        tblCommands.setDefaultEditor(Object.class, null);
-
-        tblCommands.setAutoscrolls(true);
-        tblCommands.setPreferredScrollableViewportSize(tblCommands.getPreferredSize());
-        // PATH col contains tooltip
+        setUpSorterAndFilter(this, tblCommands, model, txtFilter);
 
         CellRendererLeftAlign leftRenderer = new CellRendererLeftAlign();
         CellRendererCenterAlign centerRenderer = new CellRendererCenterAlign();
@@ -483,22 +469,6 @@ public class RunCommandUI extends AppFrame {
                 tblCommands.getColumnModel().getColumn(col.getIdx()).setMaxWidth(col.getWidth());
             }
         }
-
-        tblCommands.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent mouseEvent) {
-                JTable table = (JTable) mouseEvent.getSource();
-                Point point = mouseEvent.getPoint();
-                int row = table.rowAtPoint(point);
-                if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-                    execCommand(table.getValueAt(row, 0).toString());
-                }
-            }
-        });
-
-        InputMap im = tblCommands.getInputMap();
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Action.RunCmdCell");
-        ActionMap am = tblCommands.getActionMap();
-        am.put("Action.RunCmdCell", new RunCommandAction(tblCommands));
 
         createRows();
     }
@@ -525,21 +495,15 @@ public class RunCommandUI extends AppFrame {
         logger.log(tip + ", Thread pool current size: " + threadPool.toString());
     }
 
-    private void updateTitle(String subTitle) {
-        setTitle(APP_TITLE + Utils.SP_DASH_SP + subTitle);
+    public void runCmdCallable(String cmd) {
+        runCommand.execCommand(cmd);
+        lastCmdRun = getDisplayName(cmd);
+        updateInfo();
+        updateTitle(lastCmdRun);
+        enableControls();
     }
 
-    private void addFilter() {
-        RowFilter<DefaultTableModel, Object> rf;
-        try {
-            rf = RowFilter.regexFilter(txtFilter.getText(), 0);
-        } catch (PatternSyntaxException e) {
-            return;
-        }
-        sorter.setRowFilter(rf);
-    }
-
-    private void execCommand(String cmd) {
+    public void execCommand(String cmd) {
         disableControls();
         threadPool.submit(new RunCommandCallable(this, cmd));
     }
@@ -618,102 +582,6 @@ public class RunCommandUI extends AppFrame {
         System.exit(0);
     }
 
-    static class RunCommandCallable implements Callable<Boolean> {
-
-        private final RunCommandUI rc;
-        private final String cmd;
-
-        public RunCommandCallable(RunCommandUI rc, String command) {
-            this.rc = rc;
-            this.cmd = command;
-        }
-
-        @Override
-        public Boolean call() {
-            rc.runCommand.execCommand(cmd);
-            lastCmdRun = rc.getDisplayName(cmd);
-            rc.updateInfo();
-            rc.updateTitle(lastCmdRun);
-            rc.enableControls();
-            return true;
-        }
-
-    }
-
-    //static class ThemeChangerCallable implements Callable<Boolean> {
-    static class ThemeChangerTask extends TimerTask {
-
-        private final RunCommandUI rc;
-
-        //public ThemeChangerCallable(RunCommandUI rc) {
-        public ThemeChangerTask(RunCommandUI rc) {
-            this.rc = rc;
-        }
-
-        /*@Override
-        public Boolean call() {*/
-        @Override
-        public void run() {
-            if (Boolean.parseBoolean(rc.getRandomThemes())) {
-                rc.changeTheme();
-            }
-            /*while (true) {
-                try {
-                    Thread.sleep(THEME_COLOR_CHANGE_TIME);
-                } catch (InterruptedException e) {
-                    rc.logger.warn("Thread sleep interrupted");
-                }
-                if (Boolean.parseBoolean(rc.getRandomThemes())) {
-                    rc.changeTheme();
-                }
-            }*/
-        }
-    }
-
-    //static class ColorChangerCallable implements Callable<Boolean> {
-    static class ColorChangerTask extends TimerTask {
-
-        private final RunCommandUI rc;
-
-        //public ColorChangerCallable(RunCommandUI rc) {
-        public ColorChangerTask(RunCommandUI rc) {
-            this.rc = rc;
-        }
-
-        /*@Override
-        public Boolean call() {*/
-        @Override
-        public void run() {
-            if (Boolean.parseBoolean(rc.getRandomColors())) {
-                rc.changeColor();
-            }
-            /*while (true) {
-                try {
-                    Thread.sleep(THEME_COLOR_CHANGE_TIME);
-                } catch (InterruptedException e) {
-                    rc.logger.warn("Thread sleep interrupted");
-                }
-                if (Boolean.parseBoolean(rc.getRandomColors())) {
-                    rc.changeColor();
-                }
-            }*/
-        }
-    }
-
-    class RunCommandAction extends AbstractAction {
-
-        private final JTable table;
-
-        public RunCommandAction(JTable table) {
-            this.table = table;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            execCommand(table.getValueAt(table.getSelectedRow(), 0).toString());
-        }
-    }
-
     public String getRandomThemes() {
         return jcbRandomThemes.isSelected() + "";
     }
@@ -728,20 +596,6 @@ public class RunCommandUI extends AppFrame {
 
     public String getNumOnFav() {
         return numOnFav + "";
-    }
-
-    static class RunTableHeaders extends JTableHeader {
-
-        public RunTableHeaders(TableColumnModel columnModel) {
-            super(columnModel);
-        }
-
-        public String getToolTipText(MouseEvent e) {
-            Point p = e.getPoint();
-            int index = columnModel.getColumnIndexAtX(p.x);
-            int realIndex = columnModel.getColumn(index).getModelIndex();
-            return COLS.values()[realIndex].getToolTip();
-        }
     }
 }
 
