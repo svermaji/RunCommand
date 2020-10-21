@@ -5,10 +5,10 @@ import com.sv.core.MyLogger;
 import com.sv.core.Utils;
 import com.sv.runcmd.helpers.*;
 import com.sv.swingui.*;
+import com.sv.swingui.UIConstants.ColorsNFonts;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
@@ -24,9 +24,11 @@ import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+
+import static com.sv.core.Constants.*;
+import static com.sv.swingui.UIConstants.*;
 
 public class RunCommandUI extends AppFrame {
 
@@ -73,43 +75,6 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    public enum AppColor {
-        CYAN_BLACK(Color.CYAN, Color.BLACK, "Calibri"),
-        BLACK_GREEN(Color.BLACK, Color.GREEN, "Algerian"),
-        GRAY_WHITE(Color.GRAY, Color.WHITE, "Elephant"),
-        GREEN_WHITE(new Color(57, 172, 170), Color.WHITE, "Lucida Bright"),
-        WHITE_BLUE(Color.WHITE, Color.BLUE, "Lucida Calligraphy Italic"),
-        BLACK_RED(Color.BLACK, Color.RED, "Segoe UI"),
-        MAGENTA_YELLOW(Color.MAGENTA, Color.YELLOW, "Tahoma"),
-        BLUE_WHITE(new Color(32, 145, 255), Color.WHITE, "Times New Roman"),
-        BLACK_PURPLE(Color.BLACK, new Color(143, 85, 173), "Vardana"),
-        TEALGREEN_WHITE(new Color(0, 128, 128), Color.WHITE, "Arial Black"),
-        ORANGE_WHITE(Color.ORANGE, Color.WHITE, "Comic Sans MS"),
-        DEFAULT(Color.LIGHT_GRAY, Color.BLACK, "Consolas");
-
-        Color bk, fg;
-        String font;
-
-        AppColor(Color bk, Color fg, String font) {
-            this.bk = bk;
-            this.fg = fg;
-            this.font = font;
-        }
-
-        public Color getBk() {
-            return bk;
-        }
-
-        public Color getFg() {
-            return fg;
-        }
-
-        public String getFont() {
-            return font;
-        }
-    }
-
-    private static final long THEME_COLOR_CHANGE_TIME = TimeUnit.MINUTES.toMillis(10);
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
@@ -251,13 +216,13 @@ public class RunCommandUI extends AppFrame {
         controlPanel.setLayout(new GridBagLayout());
         controlPanel.add(jcbRandomThemes);
         controlPanel.add(jcbRandomColor);
-        controlPanel.setBorder(SwingUtils.EMPTY_BORDER);
+        controlPanel.setBorder(EMPTY_BORDER);
 
         JPanel topPanel = new JPanel(new GridLayout(3, 1));
         topPanel.add(lblInfo);
         topPanel.add(controlPanel);
         topPanel.add(favBtnPanel);
-        topPanel.setBorder(SwingUtils.EMPTY_BORDER);
+        topPanel.setBorder(EMPTY_BORDER);
 
         JPanel lowerPanel = new JPanel(new BorderLayout());
         JScrollPane jspCmds = new JScrollPane(tblCommands);
@@ -269,11 +234,11 @@ public class RunCommandUI extends AppFrame {
         filterPanel.add(btnClear);
         filterPanel.add(btnReload);
         filterPanel.add(btnExit);
-        filterPanel.setBorder(SwingUtils.EMPTY_BORDER);
+        filterPanel.setBorder(EMPTY_BORDER);
 
         lowerPanel.add(filterPanel, BorderLayout.NORTH);
         lowerPanel.add(jspCmds, BorderLayout.CENTER);
-        lowerPanel.setBorder(SwingUtils.EMPTY_BORDER);
+        lowerPanel.setBorder(EMPTY_BORDER);
 
         parentContainer.add(topPanel, BorderLayout.NORTH);
         parentContainer.add(lowerPanel, BorderLayout.CENTER);
@@ -285,8 +250,8 @@ public class RunCommandUI extends AppFrame {
             }
         });
 
-        new Timer().schedule(new ThemeChangerTask(this), 0, THEME_COLOR_CHANGE_TIME);
-        new Timer().schedule(new ColorChangerTask(this), 0, THEME_COLOR_CHANGE_TIME);
+        new Timer().schedule(new ThemeChangerTask(this), 0, MIN_10);
+        new Timer().schedule(new ColorChangerTask(this), 0, MIN_1);
 
         setControlsToEnable();
         setPosition();
@@ -310,13 +275,13 @@ public class RunCommandUI extends AppFrame {
     private String checkLength(String s) {
         final int BTN_TEXT_LIMIT = 8;
         if (s.length() > BTN_TEXT_LIMIT) {
-            return s.substring(0, BTN_TEXT_LIMIT - Utils.ELLIPSIS.length()) + Utils.ELLIPSIS;
+            return s.substring(0, BTN_TEXT_LIMIT - ELLIPSIS.length()) + ELLIPSIS;
         }
         return s;
     }
 
     public void changeColor() {
-        AppColor color = jcbRandomColor.isSelected() ? getNextColor() : AppColor.DEFAULT;
+        ColorsNFonts color = jcbRandomColor.isSelected() ? getNextColor() : ColorsNFonts.DEFAULT;
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
@@ -332,11 +297,11 @@ public class RunCommandUI extends AppFrame {
         return new Font(font, Font.BOLD, LBL_INFO_FONT_SIZE);
     }
 
-    private AppColor getNextColor() {
-        if (colorIdx == AppColor.values().length) {
+    private ColorsNFonts getNextColor() {
+        if (colorIdx == ColorsNFonts.values().length) {
             colorIdx = 0;
         }
-        return AppColor.values()[colorIdx++];
+        return ColorsNFonts.values()[colorIdx++];
     }
 
     public void changeTheme() {
@@ -460,7 +425,7 @@ public class RunCommandUI extends AppFrame {
 
     private void updateInfo() {
         if (lastThemeApplied != null) {
-            jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + Utils.ELLIPSIS + ")");
+            jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + ELLIPSIS + ")");
             jcbRandomThemes.setToolTipText(JCB_TOOL_TIP + ". Present theme: " + lastThemeApplied);
         }
         if (lastColorApplied != null) {
@@ -525,7 +490,7 @@ public class RunCommandUI extends AppFrame {
         String chk = " (";
         return cmd.contains(chk) ?
                 cmd.substring(cmd.indexOf(chk) + chk.length(), cmd.lastIndexOf(")")) :
-                cmd.substring(cmd.lastIndexOf(Utils.SLASH) + Utils.SLASH.length());
+                cmd.substring(cmd.lastIndexOf(SLASH) + SLASH.length());
     }
 
     private List<String> readCommands() {
