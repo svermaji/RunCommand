@@ -1,1 +1,1 @@
-taskkill /PID %1
+taskkill /PID %1 /F

@@ -254,7 +254,7 @@ public class RunCommandUI extends AppFrame {
         });
 
         new Timer().schedule(new ThemeChangerTask(this), 0, MIN_10);
-        new Timer().schedule(new ColorChangerTask(this), 0, MIN_1);
+        new Timer().schedule(new ColorChangerTask(this), 0, MIN_10);
 
         setControlsToEnable();
         setPosition();
