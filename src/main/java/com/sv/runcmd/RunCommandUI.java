@@ -267,6 +267,7 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(SwingUtils.getColorsMenu(
                 true, true, false, true, false,
                 this, logger));
+        menuSettings.addSeparator();
         menuSettings.add(getThemeMenu());
         mbSettings.add(menuSettings);
         return mbSettings;
