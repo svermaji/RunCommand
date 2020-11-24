@@ -262,8 +262,9 @@ public class RunCommandUI extends AppFrame {
         JMenuBar mbSettings = new JMenuBar();
         JMenu menuSettings = new JMenu();
         menuSettings.setIcon(new ImageIcon("./icons/settings-icon.png"));
-        menuSettings.setMnemonic('s');
-        menuSettings.setToolTipText("Settings" + SHORTCUT + menuSettings.getMnemonic());
+        char ch = 's';
+        menuSettings.setMnemonic(ch);
+        menuSettings.setToolTipText("Settings." + SHORTCUT + ch);
         menuSettings.add(SwingUtils.getColorsMenu(
                 true, true, false, true, false,
                 this, logger));
