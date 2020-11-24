@@ -101,9 +101,6 @@ public class RunCommandUI extends AppFrame {
     private final int LBL_INFO_FONT_SIZE = 14;
     private JCheckBox jcbRandomThemes, jcbRandomColor;
 
-    private final String JCB_THEME_TEXT = "random themes";
-    private final String JCB_COLOR_TEXT = "random colors";
-
     private UIManager.LookAndFeelInfo[] lookAndFeels;
 
     private final RunCommand runCommand;
@@ -150,12 +147,12 @@ public class RunCommandUI extends AppFrame {
 
         //Border emptyBorder = new EmptyBorder(new Insets(5, 5, 5, 5));
 
-        jcbRandomThemes = new JCheckBox(JCB_THEME_TEXT,
+        jcbRandomThemes = new JCheckBox("random themes (@)",
                 Boolean.parseBoolean(configs.getConfig(Configs.RandomThemes.name())));
         jcbRandomThemes.setToolTipText(JCB_TOOL_TIP);
         jcbRandomThemes.addActionListener(evt -> changeTheme());
         jcbRandomThemes.setMnemonic('T');
-        jcbRandomColor = new JCheckBox(JCB_COLOR_TEXT,
+        jcbRandomColor = new JCheckBox("random colors and fonts (@)",
                 Boolean.parseBoolean(configs.getConfig(Configs.RandomColors.name())));
         jcbRandomColor.setToolTipText(JCB_TOOL_TIP);
         jcbRandomColor.addActionListener(evt -> changeColor());
@@ -219,6 +216,7 @@ public class RunCommandUI extends AppFrame {
         controlPanel.setLayout(new GridBagLayout());
         controlPanel.add(jcbRandomThemes);
         controlPanel.add(jcbRandomColor);
+        controlPanel.add(createSettingsMenu());
         controlPanel.setBorder(EMPTY_BORDER);
 
         JPanel topPanel = new JPanel(new GridLayout(3, 1));
@@ -260,6 +258,40 @@ public class RunCommandUI extends AppFrame {
         setPosition();
     }
 
+    private JMenuBar createSettingsMenu() {
+        JMenuBar mbSettings = new JMenuBar();
+        JMenu menuSettings = new JMenu();
+        menuSettings.setIcon(new ImageIcon("./icons/settings-icon.png"));
+        menuSettings.setMnemonic('s');
+        menuSettings.setToolTipText("Settings" + SHORTCUT + menuSettings.getMnemonic());
+        menuSettings.add(SwingUtils.getColorsMenu(
+                true, true, false, true, false,
+                this, logger));
+        menuSettings.add(getThemeMenu());
+        mbSettings.add(menuSettings);
+        return mbSettings;
+    }
+
+    private JMenu getThemeMenu() {
+        JMenu menu = new JMenu("Themes");
+        int i = 'a';
+        int x = 0;
+        for (UIManager.LookAndFeelInfo lf : lookAndFeels) {
+            JMenuItem mi = new JMenuItem((char) i + SP_DASH_SP + lf.getName());
+            if (i <= 'z') {
+                mi.setMnemonic(i);
+            }
+            int finalX = x;
+            mi.addActionListener(e -> {
+                themeChange(finalX);
+            });
+            menu.add(mi);
+            i++;
+            x++;
+        }
+        return menu;
+    }
+
     private void setControlsToEnable() {
         List<Component> cmpList = new ArrayList<>();
 
@@ -285,17 +317,20 @@ public class RunCommandUI extends AppFrame {
 
     public void changeColor() {
         if (jcbRandomColor.isSelected()) {
-            ColorsNFonts color = getNextColor();
-            logger.log("Applying color: " + color.name().toLowerCase());
-            lblInfo.setBackground(color.getBk());
-            lblInfo.setForeground(color.getFg());
-            Font font = getLblInfoFont(color.getFont());
-            logger.log("Applying font: " + font.getName());
-            lblInfo.setFont(getLblInfoFont(color.getFont()));
-            lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
-            lastColorApplied = color.name().toLowerCase();
-            updateInfo();
+            applyColor(getNextColor());
         }
+    }
+
+    private void applyColor(ColorsNFonts color) {
+        logger.log("Applying color: " + color.name().toLowerCase());
+        lblInfo.setBackground(color.getBk());
+        lblInfo.setForeground(color.getFg());
+        Font font = getLblInfoFont(color.getFont());
+        logger.log("Applying font: " + font.getName());
+        lblInfo.setFont(getLblInfoFont(color.getFont()));
+        lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
+        lastColorApplied = color.name().toLowerCase();
+        updateInfo();
     }
 
     private Font getLblInfoFont(String font) {
@@ -309,27 +344,42 @@ public class RunCommandUI extends AppFrame {
         return ColorsNFonts.values()[colorIdx++];
     }
 
-    public void changeTheme() {
-        try {
-            if (jcbRandomThemes.isSelected()) {
-                String lfClass = getNextLookAndFeel();
-                logger.log("Applying look and feel: " + lfClass);
-                UIManager.setLookAndFeel(lfClass);
-                lastThemeApplied = lfClass.substring(lfClass.lastIndexOf(".") + 1);
+    // This will be called by reflection from SwingUI jar
+    public void colorChange(Integer x) {
+        colorIdx = x;
+        applyColor(ColorsNFonts.values()[colorIdx]);
+    }
 
-                repaint();
-                updateInfo();
-            }
+    // This will be called by reflection from SwingUI jar
+    public void themeChange(Integer x) {
+        themeIdx = x;
+        applyTheme(lookAndFeels[themeIdx]);
+    }
+
+    public void changeTheme() {
+        if (jcbRandomThemes.isSelected()) {
+            UIManager.LookAndFeelInfo lfClass = getNextLookAndFeel();
+            applyTheme(lfClass);
+        }
+    }
+
+    private void applyTheme(UIManager.LookAndFeelInfo lfClass) {
+        try {
+            logger.log("Applying look and feel: " + lfClass);
+            UIManager.setLookAndFeel(lfClass.getClassName());
+            lastThemeApplied = lfClass.getName();
+            repaint();
+            updateInfo();
         } catch (IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException | ClassNotFoundException e) {
             logger.warn("Unable to apply look and feel");
         }
     }
 
-    private String getNextLookAndFeel() {
+    private UIManager.LookAndFeelInfo getNextLookAndFeel() {
         if (themeIdx == lookAndFeels.length) {
             themeIdx = 0;
         }
-        return lookAndFeels[themeIdx++].getClassName();
+        return lookAndFeels[themeIdx++];
     }
 
     private void clearFilter() {
@@ -426,20 +476,16 @@ public class RunCommandUI extends AppFrame {
 
     private void updateInfo() {
         if (lastThemeApplied != null) {
-            jcbRandomThemes.setText(JCB_THEME_TEXT + " (" + ELLIPSIS + ")");
             jcbRandomThemes.setToolTipText(JCB_TOOL_TIP + ". Present theme: " + lastThemeApplied);
         }
         if (lastColorApplied != null) {
-            jcbRandomColor.setText(JCB_COLOR_TEXT + " (" + lastColorApplied + ")");
             Font f = lblInfo.getFont();
-            jcbRandomColor.setToolTipText(JCB_TOOL_TIP + ". Present color: " + lastColorApplied
-                    + ", Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize());
+            jcbRandomColor.setToolTipText(JCB_TOOL_TIP + ". Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize());
         }
         Font f = lblInfo.getFont();
         lblInfo.setText(lastThemeApplied + ", " + f.getName());
         String tip = "Last Command Run [" + lastCmdRun
                 + "] Present theme [" + lastThemeApplied
-                + "] Present color [" + lastColorApplied
                 + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
                 + "]";
         lblInfo.setToolTipText(tip);
