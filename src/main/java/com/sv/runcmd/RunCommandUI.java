@@ -284,16 +284,18 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void changeColor() {
-        ColorsNFonts color = jcbRandomColor.isSelected() ? getNextColor() : ColorsNFonts.DEFAULT;
-        logger.log("Applying color: " + color.name().toLowerCase());
-        lblInfo.setBackground(color.getBk());
-        lblInfo.setForeground(color.getFg());
-        Font font = getLblInfoFont(color.getFont());
-        logger.log("Applying font: " + font.getName());
-        lblInfo.setFont(getLblInfoFont(color.getFont()));
-        lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
-        lastColorApplied = color.name().toLowerCase();
-        updateInfo();
+        if (jcbRandomColor.isSelected()) {
+            ColorsNFonts color = getNextColor();
+            logger.log("Applying color: " + color.name().toLowerCase());
+            lblInfo.setBackground(color.getBk());
+            lblInfo.setForeground(color.getFg());
+            Font font = getLblInfoFont(color.getFont());
+            logger.log("Applying font: " + font.getName());
+            lblInfo.setFont(getLblInfoFont(color.getFont()));
+            lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
+            lastColorApplied = color.name().toLowerCase();
+            updateInfo();
+        }
     }
 
     private Font getLblInfoFont(String font) {
@@ -314,14 +316,10 @@ public class RunCommandUI extends AppFrame {
                 logger.log("Applying look and feel: " + lfClass);
                 UIManager.setLookAndFeel(lfClass);
                 lastThemeApplied = lfClass.substring(lfClass.lastIndexOf(".") + 1);
-            } else {
-                String lfClass = UIManager.getSystemLookAndFeelClassName();
-                logger.log("Applying system look and feel: " + lfClass);
-                UIManager.setLookAndFeel(lfClass);
-                lastThemeApplied = lfClass.substring(lfClass.lastIndexOf(".") + 1);
+
+                repaint();
+                updateInfo();
             }
-            repaint();
-            updateInfo();
         } catch (IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException | ClassNotFoundException e) {
             logger.warn("Unable to apply look and feel");
         }
