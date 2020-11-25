@@ -39,7 +39,7 @@ public class RunCommandUI extends AppFrame {
     private int colorIdx = 0;
 
     enum Configs {
-        RandomThemes, RandomColors, FavBtnLimit, NumOnFav
+        RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav
     }
 
     public enum COLS {
@@ -90,6 +90,7 @@ public class RunCommandUI extends AppFrame {
     private JLabel lblInfo;
     private AppTable tblCommands;
 
+    private JMenuBar mbarSettings;
     private JTextField txtFilter;
     private JButton btnReload, btnClear;
     private JButton[] btnFavs;
@@ -124,6 +125,8 @@ public class RunCommandUI extends AppFrame {
         final int MAX_FAV_ALLOWED = 10;
         final int MIN_FAV_ALLOWED = 5;
         favBtnLimit = configs.getIntConfig(Configs.FavBtnLimit.name());
+        themeIdx = configs.getIntConfig(Configs.ThemeIndex.name());
+        colorIdx = configs.getIntConfig(Configs.ColorIndex.name());
         // if config value of < 5
         if (favBtnLimit < MIN_FAV_ALLOWED) {
             logger.log("favBtnLimit reset to " + MIN_FAV_ALLOWED);
@@ -135,25 +138,24 @@ public class RunCommandUI extends AppFrame {
             favBtnLimit = MAX_FAV_ALLOWED;
         }
         numOnFav = configs.getBooleanConfig(Configs.NumOnFav.name());
-        logger.log("favBtnLimit = " + favBtnLimit + ", numOnFav = " + numOnFav);
+        lookAndFeels = UIManager.getInstalledLookAndFeels();
+
+        logger.log(String.format(
+                "favBtnLimit [%s], numOnFav [%s], themeIdx [%s], colorIdx [%s], look-n-Feel count [%s]",
+                favBtnLimit, numOnFav, themeIdx, colorIdx, lookAndFeels.length));
 
         Container parentContainer = getContentPane();
         parentContainer.setLayout(new BorderLayout());
 
-        setIconImage(new ImageIcon("./icons/app-icon.png").getImage());
-
-        lookAndFeels = UIManager.getInstalledLookAndFeels();
         favs = new ArrayList<>();
 
-        //Border emptyBorder = new EmptyBorder(new Insets(5, 5, 5, 5));
-
-        jcbRandomThemes = new JCheckBox("random themes (@)",
-                Boolean.parseBoolean(configs.getConfig(Configs.RandomThemes.name())));
+        jcbRandomThemes = new JCheckBox("random themes",
+                configs.getBooleanConfig(Configs.RandomThemes.name()));
         jcbRandomThemes.setToolTipText(JCB_TOOL_TIP);
         jcbRandomThemes.addActionListener(evt -> changeTheme());
         jcbRandomThemes.setMnemonic('T');
-        jcbRandomColor = new JCheckBox("random colors and fonts (@)",
-                Boolean.parseBoolean(configs.getConfig(Configs.RandomColors.name())));
+        jcbRandomColor = new JCheckBox("random colors and fonts",
+                configs.getBooleanConfig(Configs.RandomColors.name()));
         jcbRandomColor.setToolTipText(JCB_TOOL_TIP);
         jcbRandomColor.addActionListener(evt -> changeColor());
         jcbRandomColor.setMnemonic('O');
@@ -214,9 +216,10 @@ public class RunCommandUI extends AppFrame {
 
         JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new GridBagLayout());
+        mbarSettings = createSettingsMenu();
         controlPanel.add(jcbRandomThemes);
         controlPanel.add(jcbRandomColor);
-        controlPanel.add(createSettingsMenu());
+        controlPanel.add(mbarSettings);
         controlPanel.setBorder(EMPTY_BORDER);
 
         JPanel topPanel = new JPanel(new GridLayout(3, 1));
@@ -251,31 +254,39 @@ public class RunCommandUI extends AppFrame {
             }
         });
 
-        new Timer().schedule(new ThemeChangerTask(this), 0, MIN_10);
-        new Timer().schedule(new ColorChangerTask(this), 0, MIN_10);
-
         setControlsToEnable();
         setPosition();
+
+        new Timer().schedule(new ColorChangerTask(this), SEC_1, MIN_10);
+        new Timer().schedule(new ThemeChangerTask(this), SEC_1, MIN_10);
+
+        if (!Boolean.parseBoolean(getRandomThemes())) {
+            changeTheme();
+        }
+        if (!Boolean.parseBoolean(getRandomColors())) {
+            changeColor();
+        }
     }
 
     private JMenuBar createSettingsMenu() {
-        JMenuBar mbSettings = new JMenuBar();
+        JMenuBar mbarSettings = new JMenuBar();
         JMenu menuSettings = new JMenu();
         menuSettings.setIcon(new ImageIcon("./icons/settings-icon.png"));
         char ch = 's';
         menuSettings.setMnemonic(ch);
         menuSettings.setToolTipText("Settings." + SHORTCUT + ch);
-        menuSettings.add(SwingUtils.getColorsMenu(
-                true, true, false, true, false,
-                this, logger));
+        menuSettings.add(SwingUtils.getColorsMenu(true, true,
+                false, true, false, this, logger));
         menuSettings.addSeparator();
         menuSettings.add(getThemeMenu());
-        mbSettings.add(menuSettings);
-        return mbSettings;
+        mbarSettings.add(menuSettings);
+        return mbarSettings;
     }
 
     private JMenu getThemeMenu() {
         JMenu menu = new JMenu("Themes");
+        menu.setMnemonic('m');
+        menu.setToolTipText("Select themes");
         int i = 'a';
         int x = 0;
         for (UIManager.LookAndFeelInfo lf : lookAndFeels) {
@@ -284,9 +295,7 @@ public class RunCommandUI extends AppFrame {
                 mi.setMnemonic(i);
             }
             int finalX = x;
-            mi.addActionListener(e -> {
-                themeChange(finalX);
-            });
+            mi.addActionListener(e -> themeChange(finalX));
             menu.add(mi);
             i++;
             x++;
@@ -317,12 +326,6 @@ public class RunCommandUI extends AppFrame {
         return s;
     }
 
-    public void changeColor() {
-        if (jcbRandomColor.isSelected()) {
-            applyColor(getNextColor());
-        }
-    }
-
     private void applyColor(ColorsNFonts color) {
         logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
@@ -339,11 +342,28 @@ public class RunCommandUI extends AppFrame {
         return new Font(font, Font.BOLD, LBL_INFO_FONT_SIZE);
     }
 
+    // called from timer
+    public void changeColor() {
+        applyColor(getNextColor());
+    }
+
+    // called from timer
+    public void changeTheme() {
+        applyTheme(getNextLookAndFeel());
+    }
+
     private ColorsNFonts getNextColor() {
-        if (colorIdx == ColorsNFonts.values().length) {
-            colorIdx = 0;
+        if (jcbRandomColor.isSelected()) {
+            colorIdx++;
+            if (colorIdx == ColorsNFonts.values().length) {
+                colorIdx = 0;
+            }
         }
-        return ColorsNFonts.values()[colorIdx++];
+        return getColor();
+    }
+
+    private ColorsNFonts getColor() {
+        return ColorsNFonts.values()[colorIdx];
     }
 
     // This will be called by reflection from SwingUI jar
@@ -358,13 +378,6 @@ public class RunCommandUI extends AppFrame {
         applyTheme(lookAndFeels[themeIdx]);
     }
 
-    public void changeTheme() {
-        if (jcbRandomThemes.isSelected()) {
-            UIManager.LookAndFeelInfo lfClass = getNextLookAndFeel();
-            applyTheme(lfClass);
-        }
-    }
-
     private void applyTheme(UIManager.LookAndFeelInfo lfClass) {
         try {
             logger.log("Applying look and feel: " + lfClass);
@@ -372,16 +385,24 @@ public class RunCommandUI extends AppFrame {
             lastThemeApplied = lfClass.getName();
             repaint();
             updateInfo();
+            SwingUtilities.updateComponentTreeUI(mbarSettings);
         } catch (IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException | ClassNotFoundException e) {
             logger.warn("Unable to apply look and feel");
         }
     }
 
     private UIManager.LookAndFeelInfo getNextLookAndFeel() {
-        if (themeIdx == lookAndFeels.length) {
-            themeIdx = 0;
+        if (jcbRandomThemes.isSelected()) {
+            themeIdx++;
+            if (themeIdx == lookAndFeels.length) {
+                themeIdx = 0;
+            }
         }
-        return lookAndFeels[themeIdx++];
+        return getLookAndFeel();
+    }
+
+    private UIManager.LookAndFeelInfo getLookAndFeel() {
+        return lookAndFeels[themeIdx];
     }
 
     private void clearFilter() {
@@ -390,9 +411,6 @@ public class RunCommandUI extends AppFrame {
 
     private void createDefaultRows() {
         SwingUtils.createEmptyRows(COLS.values().length, DEFAULT_NUM_ROWS, model);
-        /*String[] emptyRow = new String[COLS.values().length];
-        Arrays.fill(emptyRow, Utils.EMPTY);
-        IntStream.range(0, DEFAULT_NUM_ROWS).forEach(i -> model.addRow(emptyRow));*/
     }
 
     private void reloadFile() {
@@ -587,6 +605,14 @@ public class RunCommandUI extends AppFrame {
 
     public String getRandomColors() {
         return jcbRandomColor.isSelected() + "";
+    }
+
+    public String getColorIndex() {
+        return colorIdx + "";
+    }
+
+    public String getThemeIndex() {
+        return themeIdx + "";
     }
 
     public String getFavBtnLimit() {

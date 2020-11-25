@@ -5,6 +5,7 @@ Utility in Java to run command like batch file or sh file or any other command
 * For date wise changes refer Details-README.md
 * This program give UI and commands from a configuration
 * In conf.config favourite button limit can be defined as 5 or 10
+* Settings menu added for selecting different colors and LookAndFeels
 * Indexing on favourite buttons can be controlled by configuration
 * User can use script to kill task which is image of cmd.exe or java.exe (No need to create batch file for that)
 * User can either double-click using mouse or press enter key to run selected command
@@ -26,23 +27,20 @@ Utility in Java to run command like batch file or sh file or any other command
 * On setting off `random themes` and `random colors` default will be reset - attached two screen shots
 
 #### Images<br>
-Initial - Attaching screen shot of application:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image.png) 
+* Application Present Image<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-25-nov.png) 
 
-2-Sep-2020 - Attaching screen shot, now user can have themes and colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-theme-color.png) 
+* First cut<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-first-cut.png) 
 
-2-Sep-2020 - Attaching screen shot, showing colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-theme-color-2.png) 
+* Settings - Colors menu<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-colors.png) 
 
-3-Sep-2020 - Attaching screen shot, showing colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-fav.png) 
+* Settings - Themes menu<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-themes.png) 
 
-4-Sep-2020 - Attaching screen shot, new look, bring filter closer to table and some UI changes:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-new-ui.png) 
+* Filter<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-filter.png) 
 
-11-Sep-2020 - Attaching screen shot, favourite title:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-fav-2.png) 
-
-22-Sep-2020 - Attaching screen shot, rounded border and bold font:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-bold.png) 
+* 10 Favourites<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-10-favs.png) 
