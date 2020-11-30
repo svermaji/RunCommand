@@ -577,10 +577,6 @@ public class RunCommandUI extends AppFrame {
         Rectangle bounds = config.getBounds();
         Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
 
-        if (tblCommands.getRowCount() > DEFAULT_NUM_ROWS) {
-            setSize(getWidth(), (int) (getHeight() * 1.3));
-        }
-
         int x = bounds.x + bounds.width - insets.right - getWidth();
         int y = bounds.y + insets.top + 10;
 
