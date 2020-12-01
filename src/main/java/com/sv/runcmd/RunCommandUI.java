@@ -271,7 +271,7 @@ public class RunCommandUI extends AppFrame {
         jcbRC.setToolTipText(JCB_TOOL_TIP);
         jcbRC.setSelected(configs.getBooleanConfig(Configs.RandomColors.name()));
         jcbRC.addActionListener(evt -> changeColor());
-        jcbRC.setMnemonic('O');
+        jcbRC.setMnemonic('r');
 
         menuSettings.add(jcbRC);
         menuSettings.add(SwingUtils.getColorsMenu(true, true,
