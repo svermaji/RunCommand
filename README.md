@@ -6,6 +6,7 @@ Utility in Java to run command like batch file or sh file or any other command
 * This program give UI and commands from a configuration
 * In conf.config favourite button limit can be defined as 5 or 10
 * Settings menu added for selecting different colors and LookAndFeels
+* Settings menu is now a bar
 * Indexing on favourite buttons can be controlled by configuration
 * User can use script to kill task which is image of cmd.exe or java.exe (No need to create batch file for that)
 * User can either double-click using mouse or press enter key to run selected command
@@ -28,16 +29,16 @@ Utility in Java to run command like batch file or sh file or any other command
 
 #### Images<br>
 * Application Present Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-25-nov.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-1-dec.png) 
 
 * First cut<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-first-cut.png) 
 
 * Settings - Colors menu<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-colors.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-colors-menu.png) 
 
 * Settings - Themes menu<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-themes.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-themes-menu.png) 
 
 * Filter<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-filter.png) 

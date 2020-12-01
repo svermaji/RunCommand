@@ -90,6 +90,7 @@ public class RunCommandUI extends AppFrame {
     private JLabel lblInfo;
     private AppTable tblCommands;
 
+    private JCheckBoxMenuItem jcbRT, jcbRC;
     private JMenuBar mbarSettings;
     private JTextField txtFilter;
     private JButton btnReload, btnClear;
@@ -214,17 +215,19 @@ public class RunCommandUI extends AppFrame {
             }
         }
 
-        JPanel controlPanel = new JPanel();
+        /*JPanel controlPanel = new JPanel();
         controlPanel.setLayout(new GridBagLayout());
         mbarSettings = createSettingsMenu();
         controlPanel.add(jcbRandomThemes);
         controlPanel.add(jcbRandomColor);
         controlPanel.add(mbarSettings);
-        controlPanel.setBorder(EMPTY_BORDER);
+        controlPanel.setBorder(EMPTY_BORDER);*/
 
-        JPanel topPanel = new JPanel(new GridLayout(3, 1));
+        createAppMenu();
+
+        JPanel topPanel = new JPanel(new GridLayout(2, 1));
         topPanel.add(lblInfo);
-        topPanel.add(controlPanel);
+        //topPanel.add(controlPanel);
         topPanel.add(favBtnPanel);
         topPanel.setBorder(EMPTY_BORDER);
 
@@ -268,7 +271,49 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    private JMenuBar createSettingsMenu() {
+    private void createAppMenu() {
+        mbarSettings = new JMenuBar();
+        JMenu menuSettings = new JMenu("Settings");
+
+        char ch = 's';
+        menuSettings.setMnemonic(ch);
+        menuSettings.setToolTipText("Settings." + SHORTCUT + ch);
+
+        jcbRT = new JCheckBoxMenuItem("Random themes",
+                configs.getBooleanConfig(Configs.RandomThemes.name()));
+        jcbRT.setToolTipText(JCB_TOOL_TIP);
+        jcbRT.setSelected(configs.getBooleanConfig(Configs.RandomThemes.name()));
+        jcbRT.addActionListener(evt -> changeTheme());
+        jcbRT.setMnemonic('T');
+
+        jcbRC = new JCheckBoxMenuItem("Random colors and fonts",
+                configs.getBooleanConfig(Configs.RandomColors.name()));
+        jcbRC.setToolTipText(JCB_TOOL_TIP);
+        jcbRC.setSelected(configs.getBooleanConfig(Configs.RandomColors.name()));
+        jcbRC.addActionListener(evt -> changeColor());
+        jcbRC.setMnemonic('O');
+
+        menuSettings.add(jcbRC);
+        menuSettings.add(SwingUtils.getColorsMenu(true, true,
+                false, true, false, this, logger));
+        menuSettings.addSeparator();
+        menuSettings.add(jcbRT);
+        menuSettings.add(getThemeMenu());
+
+        mbarSettings.add(menuSettings);
+
+        /*JMenu menuExit = new JMenu("Exit");
+        menuExit.setMnemonic('e');
+        JMenuItem menuItemExit = new JMenuItem("Exit");
+        menuItemExit.setMnemonic('x');
+        menuItemExit.addActionListener(evt -> exitForm());
+        menuExit.add(menuItemExit);
+        mbarSettings.add(menuExit);*/
+
+        setJMenuBar(mbarSettings);
+    }
+
+    /*private JMenuBar createSettingsMenu() {
         JMenuBar mbarSettings = new JMenuBar();
         JMenu menuSettings = new JMenu();
         menuSettings.setIcon(new ImageIcon("./icons/settings-icon.png"));
@@ -281,7 +326,7 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(getThemeMenu());
         mbarSettings.add(menuSettings);
         return mbarSettings;
-    }
+    }*/
 
     private JMenu getThemeMenu() {
         JMenu menu = new JMenu("Themes");
@@ -596,11 +641,13 @@ public class RunCommandUI extends AppFrame {
     }
 
     public String getRandomThemes() {
-        return jcbRandomThemes.isSelected() + "";
+        return jcbRT.isSelected() + "";
+        //return jcbRandomThemes.isSelected() + "";
     }
 
     public String getRandomColors() {
-        return jcbRandomColor.isSelected() + "";
+        return jcbRC.isSelected() + "";
+        //return jcbRandomColor.isSelected() + "";
     }
 
     public String getColorIndex() {
