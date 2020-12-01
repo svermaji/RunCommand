@@ -534,6 +534,7 @@ public class RunCommandUI extends AppFrame {
                 + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
                 + "]";
         lblInfo.setToolTipText(tip);
+        lblInfo.setText("<html>✔ " + (lastCmdRun.equals("none") ? "Welcome" : lastCmdRun) + "</html>");
         logger.log(tip + ", Thread pool current size: " + threadPool.toString());
     }
 
