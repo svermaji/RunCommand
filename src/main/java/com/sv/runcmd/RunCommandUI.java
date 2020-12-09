@@ -518,10 +518,14 @@ public class RunCommandUI extends AppFrame {
 
     public void runCmdCallable(String cmd) {
         runCommand.execCommand(cmd);
-        lastCmdRun = getDisplayName(cmd);
+        lastCmdRun = getDisplayName(cmd) + addTimeString();
         updateInfo();
         updateTitle(lastCmdRun);
         enableControls();
+    }
+
+    private String addTimeString() {
+        return " @ " + Utils.getTimeNoSec();
     }
 
     public void execCommand(String cmd) {
