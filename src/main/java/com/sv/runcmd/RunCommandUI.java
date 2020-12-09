@@ -386,12 +386,15 @@ public class RunCommandUI extends AppFrame {
             logger.log("Applying look and feel: " + lfClass);
             UIManager.setLookAndFeel(lfClass.getClassName());
             lastThemeApplied = lfClass.getName();
-            repaint();
             updateInfo();
-            SwingUtilities.updateComponentTreeUI(mbarSettings);
+            SwingUtilities.invokeLater(new ApplyTheme(this));
         } catch (IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException | ClassNotFoundException e) {
             logger.warn("Unable to apply look and feel");
         }
+    }
+
+    public void applyLookAndFeel() {
+        SwingUtilities.updateComponentTreeUI(this);
     }
 
     private UIManager.LookAndFeelInfo getNextLookAndFeel() {
@@ -506,7 +509,6 @@ public class RunCommandUI extends AppFrame {
             jcbRC.setToolTipText(JCB_TOOL_TIP + ". Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize());
         }
         Font f = lblInfo.getFont();
-        lblInfo.setText(lastThemeApplied + ", " + f.getName());
         String tip = "Last Command Run [" + lastCmdRun
                 + "] Present theme [" + lastThemeApplied
                 + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
