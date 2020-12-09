@@ -282,36 +282,14 @@ public class RunCommandUI extends AppFrame {
 
         mbarSettings.add(menuSettings);
 
-        /*JMenu menuExit = new JMenu("Exit");
-        menuExit.setMnemonic('e');
-        JMenuItem menuItemExit = new JMenuItem("Exit");
-        menuItemExit.setMnemonic('x');
-        menuItemExit.addActionListener(evt -> exitForm());
-        menuExit.add(menuItemExit);
-        mbarSettings.add(menuExit);*/
-
         setJMenuBar(mbarSettings);
     }
 
-    /*private JMenuBar createSettingsMenu() {
-        JMenuBar mbarSettings = new JMenuBar();
-        JMenu menuSettings = new JMenu();
-        menuSettings.setIcon(new ImageIcon("./icons/settings-icon.png"));
-        char ch = 's';
-        menuSettings.setMnemonic(ch);
-        menuSettings.setToolTipText("Settings." + SHORTCUT + ch);
-        menuSettings.add(SwingUtils.getColorsMenu(true, true,
-                false, true, false, this, logger));
-        menuSettings.addSeparator();
-        menuSettings.add(getThemeMenu());
-        mbarSettings.add(menuSettings);
-        return mbarSettings;
-    }*/
-
     private JMenu getThemeMenu() {
         JMenu menu = new JMenu("Themes");
-        menu.setMnemonic('m');
-        menu.setToolTipText("Select themes");
+        char c = 'm';
+        menu.setMnemonic(c);
+        menu.setToolTipText("Select themes. " + SHORTCUT + c);
         int i = 'a';
         int x = 0;
         for (UIManager.LookAndFeelInfo lf : lookAndFeels) {
