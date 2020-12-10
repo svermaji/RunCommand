@@ -9,6 +9,7 @@ import com.sv.swingui.*;
 import com.sv.swingui.UIConstants.ColorsNFonts;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.*;
+import com.sv.swingui.helper.ApplyTheme;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -138,7 +139,7 @@ public class RunCommandUI extends AppFrame {
             favBtnLimit = MAX_FAV_ALLOWED;
         }
         numOnFav = configs.getBooleanConfig(Configs.NumOnFav.name());
-        lookAndFeels = UIManager.getInstalledLookAndFeels();
+        lookAndFeels = SwingUtils.getAvailableLAFs();
 
         logger.log(String.format(
                 "favBtnLimit [%s], numOnFav [%s], themeIdx [%s], colorIdx [%s], look-n-Feel count [%s]",
@@ -278,32 +279,11 @@ public class RunCommandUI extends AppFrame {
                 false, true, false, this, logger));
         menuSettings.addSeparator();
         menuSettings.add(jcbRT);
-        menuSettings.add(getThemeMenu());
+        menuSettings.add(SwingUtils.getThemesMenu(this, logger));
 
         mbarSettings.add(menuSettings);
 
         setJMenuBar(mbarSettings);
-    }
-
-    private JMenu getThemeMenu() {
-        JMenu menu = new JMenu("Themes");
-        char c = 'm';
-        menu.setMnemonic(c);
-        menu.setToolTipText("Select themes. " + SHORTCUT + c);
-        int i = 'a';
-        int x = 0;
-        for (UIManager.LookAndFeelInfo lf : lookAndFeels) {
-            JMenuItem mi = new JMenuItem((char) i + SP_DASH_SP + lf.getName());
-            if (i <= 'z') {
-                mi.setMnemonic(i);
-            }
-            int finalX = x;
-            mi.addActionListener(e -> themeChange(finalX));
-            menu.add(mi);
-            i++;
-            x++;
-        }
-        return menu;
     }
 
     private void setControlsToEnable() {
@@ -376,25 +356,15 @@ public class RunCommandUI extends AppFrame {
     }
 
     // This will be called by reflection from SwingUI jar
-    public void themeChange(Integer x) {
+    public void themeApplied(Integer x, UIManager.LookAndFeelInfo lnf) {
         themeIdx = x;
-        applyTheme(lookAndFeels[themeIdx]);
+        updateInfo();
     }
 
     private void applyTheme(UIManager.LookAndFeelInfo lfClass) {
-        try {
-            logger.log("Applying look and feel: " + lfClass);
-            UIManager.setLookAndFeel(lfClass.getClassName());
-            lastThemeApplied = lfClass.getName();
-            updateInfo();
-            SwingUtilities.invokeLater(new ApplyTheme(this));
-        } catch (IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException | ClassNotFoundException e) {
-            logger.warn("Unable to apply look and feel");
-        }
-    }
-
-    public void applyLookAndFeel() {
-        SwingUtilities.updateComponentTreeUI(this);
+        logger.log("Applying look and feel: " + lfClass);
+        SwingUtils.applyTheme(themeIdx, lfClass, this, logger);
+        lastThemeApplied = lfClass.getName();
     }
 
     private UIManager.LookAndFeelInfo getNextLookAndFeel() {
@@ -514,7 +484,7 @@ public class RunCommandUI extends AppFrame {
                 + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
                 + "]";
         lblInfo.setToolTipText(tip);
-        lblInfo.setText("<html>✔ " + (lastCmdRun.equals("none") ? "Welcome" : lastCmdRun) + "</html>");
+        lblInfo.setText(lastCmdRun.equals("none") ? "Welcome" : lastCmdRun);
         logger.log(tip + ", Thread pool current size: " + threadPool.toString());
     }
 
