@@ -87,7 +87,7 @@ public class RunCommand {
 
         assert process != null;
 
-        String line = "", pidString = "", pid = "";
+        String line, pidString = "", pid = "";
         try (BufferedReader reader =
                      new BufferedReader(new InputStreamReader(process.getInputStream()));
              BufferedReader stdError = new BufferedReader(new

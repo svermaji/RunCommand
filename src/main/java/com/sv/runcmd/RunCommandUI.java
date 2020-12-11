@@ -1,15 +1,18 @@
 package com.sv.runcmd;
 
+import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
 import com.sv.core.exception.AppException;
 import com.sv.core.logger.MyLogger;
-import com.sv.core.Utils;
 import com.sv.runcmd.helpers.*;
-import com.sv.swingui.*;
+import com.sv.swingui.SwingUtils;
 import com.sv.swingui.UIConstants.ColorsNFonts;
-import com.sv.swingui.component.*;
-import com.sv.swingui.component.table.*;
-import com.sv.swingui.helper.ApplyTheme;
+import com.sv.swingui.component.AppButton;
+import com.sv.swingui.component.AppExitButton;
+import com.sv.swingui.component.AppFrame;
+import com.sv.swingui.component.table.AppTable;
+import com.sv.swingui.component.table.CellRendererCenterAlign;
+import com.sv.swingui.component.table.CellRendererLeftAlign;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -32,7 +35,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static com.sv.core.Constants.*;
-import static com.sv.swingui.UIConstants.*;
+import static com.sv.swingui.UIConstants.EMPTY_BORDER;
+import static com.sv.swingui.UIConstants.SHORTCUT;
 
 public class RunCommandUI extends AppFrame {
 
@@ -264,14 +268,22 @@ public class RunCommandUI extends AppFrame {
                 configs.getBooleanConfig(Configs.RandomThemes.name()));
         jcbRT.setToolTipText(JCB_TOOL_TIP);
         jcbRT.setSelected(configs.getBooleanConfig(Configs.RandomThemes.name()));
-        jcbRT.addActionListener(evt -> changeTheme());
+        jcbRT.addActionListener(evt -> {
+            if (jcbRT.isSelected()) {
+                changeTheme();
+            }
+        });
         jcbRT.setMnemonic('T');
 
         jcbRC = new JCheckBoxMenuItem("Random colors and fonts",
                 configs.getBooleanConfig(Configs.RandomColors.name()));
         jcbRC.setToolTipText(JCB_TOOL_TIP);
         jcbRC.setSelected(configs.getBooleanConfig(Configs.RandomColors.name()));
-        jcbRC.addActionListener(evt -> changeColor());
+        jcbRC.addActionListener(evt -> {
+            if (jcbRC.isSelected()) {
+                changeColor();
+            }
+        });
         jcbRC.setMnemonic('r');
 
         menuSettings.add(jcbRC);
@@ -310,11 +322,11 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void applyColor(ColorsNFonts color) {
-        logger.log("Applying color: " + color.name().toLowerCase());
+        //logger.log("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
         Font font = getLblInfoFont(color.getFont());
-        logger.log("Applying font: " + font.getName());
+        logger.log("Applying color and font: " + font.getName());
         lblInfo.setFont(getLblInfoFont(color.getFont()));
         lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
         lastColorApplied = color.name().toLowerCase();
@@ -356,15 +368,22 @@ public class RunCommandUI extends AppFrame {
     }
 
     // This will be called by reflection from SwingUI jar
-    public void themeApplied(Integer x, UIManager.LookAndFeelInfo lnf) {
-        themeIdx = x;
+    public void themeApplied(Integer x, UIManager.LookAndFeelInfo lnf, Boolean themeApplied) {
+        if (themeApplied) {
+            themeIdx = x;
+            logThemeChangeInfo(lnf);
+        }
+    }
+
+    private void logThemeChangeInfo(UIManager.LookAndFeelInfo lfClass) {
+        lastThemeApplied = lfClass.getName();
         updateInfo();
     }
 
     private void applyTheme(UIManager.LookAndFeelInfo lfClass) {
-        logger.log("Applying look and feel: " + lfClass);
         SwingUtils.applyTheme(themeIdx, lfClass, this, logger);
-        lastThemeApplied = lfClass.getName();
+        SwingUtils.updateForTheme(tblCommands);
+        //logThemeChangeInfo (lfClass);
     }
 
     private UIManager.LookAndFeelInfo getNextLookAndFeel() {
@@ -485,7 +504,8 @@ public class RunCommandUI extends AppFrame {
                 + "]";
         lblInfo.setToolTipText(tip);
         lblInfo.setText(lastCmdRun.equals("none") ? "Welcome" : lastCmdRun);
-        logger.log(tip + ", Thread pool current size: " + threadPool.toString());
+        //logger.log(tip + ", Thread pool current size: " + threadPool.toString());
+        logger.log(tip);
     }
 
     public void runCmdCallable(String cmd) {
