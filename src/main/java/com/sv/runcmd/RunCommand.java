@@ -40,7 +40,7 @@ public class RunCommand {
         return chopStar(cmd);
     }
 
-    public void execCommand(String cmd) {
+    public String execCommand(String cmd) {
         String cmdStr = getCmdToRun(cmd);
         logger.log("Calling command [" + cmdStr + "]");
 
@@ -51,8 +51,11 @@ public class RunCommand {
                 Runtime.getRuntime().exec(cmdStr);
             } catch (IOException e) {
                 logger.error(e);
+                return e.getMessage();
             }
         }
+
+        return "";
     }
 
     private boolean isPidCmd(String cmd) {

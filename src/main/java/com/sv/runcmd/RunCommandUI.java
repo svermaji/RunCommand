@@ -512,8 +512,8 @@ public class RunCommandUI extends AppFrame {
         String tip = tip1 + SPACE + tip2;
         lblInfo.setToolTipText(tip);
 
-        String txt = HTML_STR + "<center>" + cmdRun + BR +
-                "<span style='font-size:9px'>" + tip2 + "</span></center>" + HTML_END;
+        String txt = HTML_STR + CENTER_STR + cmdRun + BR +
+                "<span style='font-size:9px'>" + tip2 + SPAN_END + CENTER_END + HTML_END;
         lblInfo.setText(txt);
 
         //logger.log(tip + ", Thread pool current size: " + threadPool.toString());
@@ -521,10 +521,14 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void runCmdCallable(String cmd) {
-        runCommand.execCommand(cmd);
-        lastCmdRun = cmd;
-        updateInfo();
-        updateTitle(lastCmdRun);
+        String msg = runCommand.execCommand(cmd);
+        if (!Utils.hasValue(msg)) {
+            lastCmdRun = cmd;
+            updateInfo();
+            updateTitle(lastCmdRun);
+        } else {
+            lblInfo.setText(HTML_STR + CENTER_STR + "Error: " + msg + CENTER_END + HTML_END);
+        }
         enableControls();
     }
 
