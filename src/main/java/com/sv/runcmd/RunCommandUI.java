@@ -35,8 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static com.sv.core.Constants.*;
-import static com.sv.swingui.UIConstants.EMPTY_BORDER;
-import static com.sv.swingui.UIConstants.SHORTCUT;
+import static com.sv.swingui.UIConstants.*;
 
 public class RunCommandUI extends AppFrame {
 
@@ -498,19 +497,27 @@ public class RunCommandUI extends AppFrame {
             jcbRC.setToolTipText(JCB_TOOL_TIP + ". Font: " + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize());
         }
         Font f = lblInfo.getFont();
-        String tip = "Last Command Run [" + lastCmdRun
-                + "] Present theme [" + lastThemeApplied
+        String dispCmd = getDisplayName(lastCmdRun);
+        String tip1 = "Executed [" + dispCmd + addTimeString() + "]";
+        String tip2 = "Theme [" + lastThemeApplied
                 + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
                 + "]";
+        String tip = tip1 + SPACE + tip2;
         lblInfo.setToolTipText(tip);
-        lblInfo.setText(lastCmdRun.equals("none") ? "Welcome" : lastCmdRun);
+
+        String cmdRun = lastCmdRun.equals("none") ? "Welcome" :
+                (dispCmd.length() > 10 ? dispCmd.substring(0, 10) + ELLIPSIS : dispCmd) + addTimeString();
+        String txt = HTML_STR + "<center>" + cmdRun + BR +
+                "<span style='font-size:9px'>" + tip2 + "</span></center>" + HTML_END;
+        lblInfo.setText(txt);
+
         //logger.log(tip + ", Thread pool current size: " + threadPool.toString());
         logger.log(tip);
     }
 
     public void runCmdCallable(String cmd) {
         runCommand.execCommand(cmd);
-        lastCmdRun = getDisplayName(cmd) + addTimeString();
+        lastCmdRun = cmd;
         updateInfo();
         updateTitle(lastCmdRun);
         enableControls();
