@@ -501,18 +501,19 @@ public class RunCommandUI extends AppFrame {
         String dispCmd = "none";
         String cmdRun = "Welcome";
         if (!lastCmdRun.equals("none")) {
-            dispCmd = getDisplayName(lastCmdRun) + addTimeString();
-            cmdRun = (dispCmd.length() > 10 ? dispCmd.substring(0, 10) + ELLIPSIS : dispCmd)
-                    + addTimeString();
+            dispCmd = getDisplayName(lastCmdRun);
+            int charsToDisp = 20;
+            cmdRun = (dispCmd.length() > charsToDisp ? dispCmd.substring(0, charsToDisp)
+                    + ELLIPSIS : dispCmd) + addTimeString();
         }
-        String tip1 = "Executed [" + dispCmd + "]";
+        String tip1 = "Executed [" + dispCmd + addTimeString() + "]";
         String tip2 = "Theme [" + lastThemeApplied
                 + "] Font [" + f.getName() + "/" + (f.isBold() ? "bold" : "plain") + "/" + f.getSize()
                 + "]";
         String tip = tip1 + SPACE + tip2;
         lblInfo.setToolTipText(tip);
 
-        String txt = HTML_STR + CENTER_STR + cmdRun + BR +
+        String txt = HTML_STR + CENTER_STR + cmdRun + BR + BR +
                 "<span style='font-size:9px'>" + tip2 + SPAN_END + CENTER_END + HTML_END;
         lblInfo.setText(txt);
 
