@@ -1,6 +1,6 @@
 package com.sv.runcmd;
 
-import com.sv.core.*;
+import com.sv.core.Utils;
 import com.sv.core.logger.MyLogger;
 
 import java.io.BufferedReader;
@@ -19,7 +19,7 @@ public class RunCommand {
         if (args != null && args.length == 1) {
             logger = MyLogger.createLogger("run-cmd-arg.log");
             execCommand(args[0]);
-            Utils.sleep(1000);
+            Utils.sleep1Sec();
         } else {
             logger = MyLogger.createLogger("run-cmd.log");
             new RunCommandUI(this, logger);
@@ -47,12 +47,7 @@ public class RunCommand {
         if (isPidCmd(cmdStr)) {
             tracePid(cmdStr);
         } else {
-            try {
-                Runtime.getRuntime().exec(cmdStr);
-            } catch (IOException e) {
-                logger.error(e);
-                return e.getMessage();
-            }
+            Utils.runCmd(cmdStr, logger);
         }
 
         return "";
@@ -85,7 +80,7 @@ public class RunCommand {
         try {
             process = Runtime.getRuntime().exec(cmd);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
         assert process != null;
