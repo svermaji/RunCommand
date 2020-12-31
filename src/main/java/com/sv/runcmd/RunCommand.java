@@ -62,7 +62,7 @@ public class RunCommand {
         String processName = Utils.chopFileNameExtn(Utils.getFileName(cmd));
         processName = processName.substring(processName.indexOf("pid-") + "pid-".length());
 
-        String tlCmd = getCmdForCmd(processName);
+        String tlCmd = getCmdForCmdPrompt(processName);
         String pid = getPidFor(tlCmd, processName);
 
         if (!Utils.hasValue(pid)) {
@@ -128,7 +128,7 @@ public class RunCommand {
                 ;
     }
 
-    private String getCmdForCmd(String cmd) {
+    private String getCmdForCmdPrompt(String cmd) {
         return getListCmdFor("cmd.exe", cmd);
     }
 
