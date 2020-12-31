@@ -47,7 +47,7 @@ public class RunCommand {
         if (isPidCmd(cmdStr)) {
             tracePid(cmdStr);
         } else {
-            Utils.runCmd(cmdStr, logger);
+            return Utils.runCmd(cmdStr, logger);
         }
 
         return "";
@@ -76,13 +76,7 @@ public class RunCommand {
     }
 
     private String getPidFor(String cmd, String processName) {
-        Process process = null;
-        try {
-            process = Runtime.getRuntime().exec(cmd);
-        } catch (IOException e) {
-            logger.error(e);
-        }
-
+        Process process = Utils.runProcess(cmd, logger);
         assert process != null;
 
         String line, pidString = "", pid = "";
