@@ -85,26 +85,33 @@ public class RunCommand {
              BufferedReader stdError = new BufferedReader(new
                      InputStreamReader(process.getErrorStream()))) {
 
+            StringBuilder sb = new StringBuilder();
             do {
                 line = reader.readLine();
                 if (Utils.hasValue(line)) {
-                    logger.log(line);
-                }
-                if (line != null && captureData(line, processName)) {
-                    pidString = line;
+                    sb.append(line);
+                    if (captureData(line, processName)) {
+                        pidString = line;
+                    }
                 }
             } while (line != null);
 
-            logger.log("PID String captured as " + pidString);
+            logger.log("PID String captured as " + pidString + " from output: " + sb.toString());
 
             if (!Utils.hasValue(pidString)) {
+                sb = new StringBuilder();
                 logger.warn("No data from process. Checking error stream.");
                 do {
                     line = stdError.readLine();
                     if (Utils.hasValue(line)) {
-                        logger.warn(line);
+                        sb.append(line);
                     }
                 } while (line != null);
+                if (!Utils.hasValue(sb.toString())) {
+                    logger.warn("No error stream data.");
+                }else {
+                    logger.warn("Error stream data: " + sb.toString());
+                }
             } else {
                 // Array must come as output of nearly 9 elements, each encloses in ""
                 pid = pidString.split(",")[1];
