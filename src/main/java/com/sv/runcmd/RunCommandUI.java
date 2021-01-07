@@ -526,7 +526,7 @@ public class RunCommandUI extends AppFrame {
         if (!Utils.hasValue(msg)) {
             lastCmdRun = cmd;
             updateInfo();
-            updateTitle(lastCmdRun);
+            //updateTitle(lastCmdRun);
         } else {
             lblInfo.setText(HTML_STR + CENTER_STR + "Error: " + msg + CENTER_END + HTML_END);
         }

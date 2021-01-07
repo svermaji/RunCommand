@@ -40,6 +40,12 @@ public class RunCommand {
         return chopStar(cmd);
     }
 
+    public void execCmdAsProcess(String cmd) {
+        String cmdStr = getCmdToRun(cmd);
+        logger.log("Calling command [" + cmdStr + "]");
+        Utils.logProcessOutput(Utils.runProcess(cmdStr, logger), logger);
+    }
+
     public String execCommand(String cmd) {
         String cmdStr = getCmdToRun(cmd);
         logger.log("Calling command [" + cmdStr + "]");
@@ -58,6 +64,11 @@ public class RunCommand {
         return fn.startsWith("pid-");
     }
 
+    /**
+     * It is in recursion for execCommand
+     *
+     * @param cmd command
+     */
     private void tracePid(String cmd) {
         String processName = Utils.chopFileNameExtn(Utils.getFileName(cmd));
         processName = processName.substring(processName.indexOf("pid-") + "pid-".length());
@@ -71,7 +82,7 @@ public class RunCommand {
         }
 
         if (Utils.hasValue(pid)) {
-            execCommand(getKillCmdFor(pid));
+            execCmdAsProcess(getKillCmdFor(pid));
         }
     }
 
@@ -109,7 +120,7 @@ public class RunCommand {
                 } while (line != null);
                 if (!Utils.hasValue(sb.toString())) {
                     logger.warn("No error stream data.");
-                }else {
+                } else {
                     logger.warn("Error stream data: " + sb.toString());
                 }
             } else {
