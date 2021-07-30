@@ -7,9 +7,7 @@ import com.sv.core.logger.MyLogger;
 import com.sv.runcmd.helpers.*;
 import com.sv.swingui.SwingUtils;
 import com.sv.swingui.UIConstants.ColorsNFonts;
-import com.sv.swingui.component.AppButton;
-import com.sv.swingui.component.AppExitButton;
-import com.sv.swingui.component.AppFrame;
+import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
 import com.sv.swingui.component.table.CellRendererLeftAlign;
@@ -20,6 +18,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -41,9 +41,13 @@ public class RunCommandUI extends AppFrame {
 
     private int themeIdx = 0;
     private int colorIdx = 0;
+    private final String SEPARATOR = "~";
+    public static final int RECENT_LIMIT = 10;
+    private String recentFiltersStr;
 
     enum Configs {
-        RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav
+        RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
+        RecentFilters, Filter
     }
 
     public enum COLS {
@@ -96,7 +100,7 @@ public class RunCommandUI extends AppFrame {
 
     private JCheckBoxMenuItem jcbRT, jcbRC;
     private JMenuBar mbarSettings;
-    private JTextField txtFilter;
+    private AppTextField txtFilter;
     private JButton btnReload, btnClear;
     private JButton[] btnFavs;
     private List<String> favs;
@@ -131,6 +135,8 @@ public class RunCommandUI extends AppFrame {
         favBtnLimit = configs.getIntConfig(Configs.FavBtnLimit.name());
         themeIdx = configs.getIntConfig(Configs.ThemeIndex.name());
         colorIdx = configs.getIntConfig(Configs.ColorIndex.name());
+        recentFiltersStr = getCfg(Configs.RecentFilters);
+
         // if config value of < 5
         if (favBtnLimit < MIN_FAV_ALLOWED) {
             logger.log("favBtnLimit reset to " + MIN_FAV_ALLOWED);
@@ -153,18 +159,18 @@ public class RunCommandUI extends AppFrame {
 
         favs = new ArrayList<>();
 
+        UIName uin = UIName.LBL_FILTER;
         Border lineBorder = new LineBorder(Color.black, 5, true);
         final int TXT_COLS = 20;
-        JLabel lblFilter = new JLabel("Filter");
         lblInfo = new JLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
         lblInfo.setOpaque(true);
         lblInfo.setFont(SwingUtils.getCalibriFont(Font.BOLD, LBL_INFO_FONT_SIZE));
 
-        txtFilter = new JTextField(TXT_COLS);
-        lblFilter.setLabelFor(txtFilter);
-        lblFilter.setDisplayedMnemonic('F');
+        // setting value from config at last to apply filter
+        txtFilter = new AppTextField("", TXT_COLS, getFilters());
+        AppLabel lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
 
         btnReload = new AppButton("Reload", 'R');
         btnReload.addActionListener(evt -> reloadFile());
@@ -253,6 +259,60 @@ public class RunCommandUI extends AppFrame {
         if (!Boolean.parseBoolean(getRandomColors())) {
             changeColor();
         }
+
+        txtFilter.setText(getCfg(Configs.Filter));
+        txtFilter.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                updateRecentFilters();
+            }
+        });
+
+    }
+
+    public void debug(String s) {
+        logger.debug(s);
+    }
+
+    private void updateRecentFilters() {
+        debug("update recent search values");
+
+        String s = getFilter();
+        if (Utils.hasValue(s)) {
+            recentFiltersStr = checkItems(s, recentFiltersStr);
+            String[] arrF = recentFiltersStr.split(SEPARATOR);
+            txtFilter.setAutoCompleteArr(arrF);
+        }
+    }
+
+    private String checkItems(String searchStr, String csv) {
+        if (!Utils.hasValue(searchStr)) {
+            return csv;
+        }
+
+        String csvLC = csv.toLowerCase();
+        String ssLC = searchStr.toLowerCase();
+        if (csvLC.contains(ssLC)) {
+            int idx = csvLC.indexOf(ssLC);
+            // remove item and add it again to bring it on top
+            csv = csv.substring(0, idx)
+                    + csv.substring(idx + searchStr.length() + SEPARATOR.length());
+        }
+        csv = searchStr + SEPARATOR + csv;
+
+        if (csv.split(SEPARATOR).length >= RECENT_LIMIT) {
+            csv = csv.substring(0, csv.lastIndexOf(SEPARATOR));
+        }
+
+        return csv;
+    }
+
+    private String[] getFilters() {
+        return getCfg(Configs.RecentFilters).split(SEPARATOR);
+    }
+
+    public String getCfg(Configs c) {
+        return configs.getConfig(c.name());
     }
 
     private void createAppMenu() {
@@ -610,6 +670,14 @@ public class RunCommandUI extends AppFrame {
         dispose();
         logger.dispose();
         System.exit(0);
+    }
+
+    public String getRecentFilters() {
+        return recentFiltersStr;
+    }
+
+    public String getFilter() {
+        return txtFilter.getText();
     }
 
     public String getRandomThemes() {
