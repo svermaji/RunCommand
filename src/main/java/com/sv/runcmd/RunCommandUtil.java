@@ -1,15 +1,15 @@
 package com.sv.runcmd;
 
+import com.sv.core.Utils;
 import com.sv.core.logger.MyLogger;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class RunCommandUtil {
 
-    private MyLogger logger;
+    private final MyLogger logger;
     private final static int RETRY_ATTEMPTS = 3;
 
     public RunCommandUtil(MyLogger logger) {
@@ -61,11 +61,23 @@ public class RunCommandUtil {
         logger.log("Attempt [" + attempt + "/" + RETRY_ATTEMPTS + "] for command [" + cmd + "]");
         int exitVal;
         try {
-            ProcessBuilder ProcessBuilder = new ProcessBuilder(cmd);
-            Process process = ProcessBuilder.start();
+            String cmdStr = cmd;
+            String argStr = "";
+            if (cmd.contains(" ")) {
+                int idx = cmd.indexOf(" ");
+                cmdStr = cmd.substring(0, idx);
+                argStr = cmd.substring(idx + 1);
+            }
+            logger.log("Command [" + cmdStr + "] and arg [" + argStr + "]");
+
+            Process process = Utils.runProcess(new String[]{cmdStr, argStr}, logger);
             exitVal = process.waitFor();
-            logger.log("exit value [" + exitVal + "], State [" + getExitState(exitVal) + "]");
-        } catch (InterruptedException | IOException e) {
+            process.destroyForcibly();
+            logger.log("exit value [" + exitVal + "], State [" + getExitState(exitVal) + "].");
+            if (!isExitStateSuccess(exitVal)) {
+                logger.error("Error is [" + getDetails(process) + "]");
+            }
+        } catch (InterruptedException e) {
             if (attempt == RETRY_ATTEMPTS) {
                 logger.error("Command interrupted " + e.getMessage() + ". Details: ", e);
             } else {
@@ -81,7 +93,7 @@ public class RunCommandUtil {
             exitVal = -1;
         }
 
-        if (exitVal != 0 && attempt < RETRY_ATTEMPTS) {
+        if (!isExitStateSuccess(exitVal) && attempt < RETRY_ATTEMPTS) {
             logger.error("Attempt failed for cmd [" + cmd + "], retrying...");
             attempt++;
             exitVal = runCommand(cmd, attempt);
@@ -90,8 +102,16 @@ public class RunCommandUtil {
         return exitVal;
     }
 
+    private String getDetails(Process process) {
+        return Utils.getProcessOutput(process, logger);
+    }
+
     private String getExitState(int exitVal) {
-        return (0 == exitVal) ? "success" : "failure";
+        return isExitStateSuccess(exitVal) ? "success" : "failure";
+    }
+
+    private boolean isExitStateSuccess(int exitVal) {
+        return (0 == exitVal);
     }
 
 }

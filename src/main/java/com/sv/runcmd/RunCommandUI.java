@@ -18,12 +18,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -97,11 +95,12 @@ public class RunCommandUI extends AppFrame {
     private DefaultTableModel model;
     private JLabel lblInfo;
     private AppTable tblCommands;
+    private JPopupMenu tblRowsPopupMenu = new JPopupMenu();
 
     private JCheckBoxMenuItem jcbRT, jcbRC;
     private JMenuBar mbarSettings;
     private AppTextField txtFilter;
-    private JButton btnReload, btnClear;
+    private JButton btnReload, btnConfig, btnCmd, btnClear;
     private JButton[] btnFavs;
     private List<String> favs;
     // Should be either 5 or 10
@@ -161,7 +160,7 @@ public class RunCommandUI extends AppFrame {
 
         UIName uin = UIName.LBL_FILTER;
         Border lineBorder = new LineBorder(Color.black, 5, true);
-        final int TXT_COLS = 20;
+        final int TXT_COLS = 10;
         lblInfo = new JLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
@@ -174,12 +173,33 @@ public class RunCommandUI extends AppFrame {
 
         btnReload = new AppButton("Reload", 'R');
         btnReload.addActionListener(evt -> reloadFile());
+        btnConfig = new AppButton("Open Cfg", 'O');
+        btnConfig.addActionListener(evt -> openConfig());
+        btnCmd = new AppButton("Open Cmd", 'd');
+        btnCmd.addActionListener(evt -> openCmd());
         btnClear = new AppButton("Clear", 'C');
         btnClear.addActionListener(evt -> clearFilter());
 
         JButton btnExit = new AppExitButton(true);
 
         createTable();
+        uin = UIName.MNU_COPY;
+        JMenuItem tblRowsMICopy = new JMenuItem(uin.name, uin.mnemonic);
+        tblRowsMICopy.addActionListener(evt -> execCommand(copyCmdToClipboard()));
+        tblRowsPopupMenu.add(tblRowsMICopy);
+        // sets the popup menu for the table
+        tblCommands.setComponentPopupMenu(tblRowsPopupMenu);
+        tblCommands.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    tblCommands.clearSelection();
+                    int row = tblCommands.rowAtPoint(e.getPoint());
+                    tblCommands.addRowSelectionInterval(row, row);
+                }
+            }
+        });
+
         btnFavs = new JButton[favBtnLimit];
         for (int i = 0; i < favBtnLimit; i++) {
             String s = "" + (i == 9 ? 0 : i + 1);
@@ -230,6 +250,8 @@ public class RunCommandUI extends AppFrame {
         filterPanel.add(txtFilter);
         filterPanel.add(btnClear);
         filterPanel.add(btnReload);
+        filterPanel.add(btnConfig);
+        filterPanel.add(btnCmd);
         filterPanel.add(btnExit);
         filterPanel.setBorder(EMPTY_BORDER);
 
@@ -267,7 +289,10 @@ public class RunCommandUI extends AppFrame {
                 updateRecentFilters();
             }
         });
+    }
 
+    private String copyCmdToClipboard() {
+        return ".\\cmds\\cp-clip.bat " + runCommand.getCmdToRun(getSelectedRowText(tblCommands, 0));
     }
 
     public void debug(String s) {
@@ -363,6 +388,8 @@ public class RunCommandUI extends AppFrame {
         cmpList.add(txtFilter);
         cmpList.add(btnClear);
         cmpList.add(btnReload);
+        cmpList.add(btnConfig);
+        cmpList.add(btnCmd);
         cmpList.add(tblCommands);
         cmpList.addAll(Arrays.asList(btnFavs));
 
@@ -477,6 +504,14 @@ public class RunCommandUI extends AppFrame {
         enableControls();
     }
 
+    private void openConfig() {
+        execCommand("cmd.exe /c start .");
+    }
+
+    private void openCmd() {
+        execCommand("cmd.exe /c start cmd.exe");
+    }
+
     private void cleanFavBtns() {
         for (JButton b : btnFavs) {
             b.setText("X");
@@ -504,7 +539,11 @@ public class RunCommandUI extends AppFrame {
 
     // This will be called by reflection from SwingUI jar
     public void handleDblClickOnRow(AppTable table, Object[] p) {
-        execCommand(table.getValueAt(table.getSelectedRow(), 0).toString());
+        execCommand(getSelectedRowText(table, 0));
+    }
+
+    public String getSelectedRowText(AppTable table, int col) {
+        return table.getValueAt(table.getSelectedRow(), col).toString();
     }
 
     private void setUpSorterAndFilter(RunCommandUI obj, AppTable table,
@@ -525,6 +564,7 @@ public class RunCommandUI extends AppFrame {
 
         Border borderBlue = new LineBorder(Color.BLUE, 1);
         tblCommands = new AppTable(model);
+        tblCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblCommands.setTableHeader(new TableHeaderToolTip(tblCommands.getColumnModel(),
                 Arrays.stream(COLS.class.getEnumConstants()).map(COLS::getToolTip).toArray(String[]::new)
         ));
@@ -583,7 +623,7 @@ public class RunCommandUI extends AppFrame {
 
     public void runCmdCallable(String cmd) {
         String msg = runCommand.execCommand(cmd);
-        if (!Utils.hasValue(msg)) {
+        if (!Utils.hasValue(msg) || !msg.equalsIgnoreCase("true")) {
             lastCmdRun = cmd;
             updateInfo();
             //updateTitle(lastCmdRun);

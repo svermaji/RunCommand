@@ -37,7 +37,7 @@ public class RunCommand {
         return cmd;
     }
 
-    private String getCmdToRun(String cmd) {
+    public String getCmdToRun(String cmd) {
         String chk = " (";
         cmd = cmd.contains(chk) ?
                 cmd.substring(0, cmd.indexOf(chk)) : cmd;

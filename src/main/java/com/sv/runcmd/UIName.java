@@ -1,7 +1,8 @@
 package com.sv.runcmd;
 
 public enum UIName {
-    LBL_FILTER("Filter", 'F');
+    LBL_FILTER("Filter", 'F'),
+    MNU_COPY("Copy Command", 'C');
 
     String name, tip;
     char mnemonic;

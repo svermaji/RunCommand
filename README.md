@@ -4,6 +4,8 @@ Utility in Java to run command like batch file or sh file or any other command
 ## Description<br>
 * For date wise changes refer Details-README.md
 * This program give UI and commands from a configuration
+* Added context menu to copy command from a row
+* Button to open config folder and command prompt (on Windows only)
 * In conf.config favourite button limit can be defined as 5 or 10
 * Settings menu added for selecting different colors and LookAndFeels
 * Settings menu is now a bar
