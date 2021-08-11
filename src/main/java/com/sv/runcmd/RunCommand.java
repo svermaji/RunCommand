@@ -11,6 +11,8 @@ public class RunCommand {
 
     private final MyLogger logger;
 
+    private final RunCommandUtil commandUtil;
+
     public static void main(String[] args) {
         new RunCommand(args);
     }
@@ -18,10 +20,12 @@ public class RunCommand {
     public RunCommand(String[] args) {
         if (args != null && args.length == 1) {
             logger = MyLogger.createLogger("run-cmd-arg.log");
+            commandUtil = new RunCommandUtil(logger);
             execCommand(args[0]);
             Utils.sleep1Sec();
         } else {
             logger = MyLogger.createLogger("run-cmd.log");
+            commandUtil = new RunCommandUtil(logger);
             new RunCommandUI(this, logger);
         }
     }
@@ -53,7 +57,7 @@ public class RunCommand {
         if (isPidCmd(cmdStr)) {
             tracePid(cmdStr);
         } else {
-            return Utils.runCmd(cmdStr, logger);
+            return commandUtil.runCommand(cmdStr) + "";
         }
 
         return "";
