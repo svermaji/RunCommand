@@ -59,7 +59,7 @@ public class RunCommandUtil {
     public boolean runCommand(String cmd, int attempt) {
 
         logger.log("Attempt [" + attempt + "/" + RETRY_ATTEMPTS + "] for command [" + cmd + "]");
-        Process process;
+        Process process = null;
         String errStreamData;
         boolean success = true;
         try {
@@ -72,13 +72,15 @@ public class RunCommandUtil {
             }
             logger.log("Command [" + cmdStr + "] and arg [" + argStr + "]");
             process = Utils.runProcess(new String[]{cmdStr, argStr}, logger);
-            errStreamData = Utils.getStreamOutput(process.getErrorStream(), logger);
-            if (Utils.hasValue(errStreamData)) {
-                success = false;
-                logger.error("Error stream data [" + errStreamData + "]");
-            }
         } catch (Exception e) {
             success = false;
+            if (process != null) {
+                errStreamData = Utils.getStreamOutput(process.getErrorStream(), logger);
+                if (Utils.hasValue(errStreamData)) {
+                    success = false;
+                    logger.error("Error stream data [" + errStreamData + "]");
+                }
+            }
             if (attempt == RETRY_ATTEMPTS) {
                 logger.error("Error in running command " + e.getMessage() + "]. Details: ", e);
             } else {
