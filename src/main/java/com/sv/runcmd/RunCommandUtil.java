@@ -86,7 +86,7 @@ public class RunCommandUtil {
             }
         }
 
-        if (success && attempt < RETRY_ATTEMPTS) {
+        if (!success && attempt < RETRY_ATTEMPTS) {
             logger.error("Attempt failed for cmd [" + cmd + "], retrying...");
             attempt++;
             success = runCommand(cmd, attempt);
