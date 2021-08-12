@@ -292,7 +292,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private String copyCmdToClipboard() {
-        return ".\\cmds\\cp-clip.bat " + runCommand.getCmdToRun(getSelectedRowText(tblCommands, 0));
+        return ".\\cmds\\cp-clip.bat \"" + runCommand.getCmdToRun(getSelectedRowText(tblCommands, 0)) + "\"";
     }
 
     public void debug(String s) {
