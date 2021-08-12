@@ -28,8 +28,8 @@ public class RunCommandUtil {
         int skippedIndex = cmdsLength;
         for (int i = 0; i < cmdsLength; i++) {
             String cmd = cmds[i];
-            int cmdState = runCommand(cmd);
-            if (cmdState != 0) {
+            boolean cmdState = runCommand(cmd);
+            if (!cmdState) {
                 failedCmd = cmd;
                 rsp = commandFailed(cmd);
                 skippedIndex = i + 1;
@@ -52,14 +52,16 @@ public class RunCommandUtil {
         return false;
     }
 
-    public int runCommand(String cmd) {
+    public boolean runCommand(String cmd) {
         return runCommand(cmd, 1);
     }
 
-    public int runCommand(String cmd, int attempt) {
+    public boolean runCommand(String cmd, int attempt) {
 
         logger.log("Attempt [" + attempt + "/" + RETRY_ATTEMPTS + "] for command [" + cmd + "]");
-        int exitVal;
+        Process process;
+        String errStreamData;
+        boolean success = true;
         try {
             String cmdStr = cmd;
             String argStr = "";
@@ -69,49 +71,28 @@ public class RunCommandUtil {
                 argStr = cmd.substring(idx + 1);
             }
             logger.log("Command [" + cmdStr + "] and arg [" + argStr + "]");
-
-            Process process = Utils.runProcess(new String[]{cmdStr, argStr}, logger);
-            exitVal = process.waitFor();
-            process.destroyForcibly();
-            logger.log("exit value [" + exitVal + "], State [" + getExitState(exitVal) + "].");
-            if (!isExitStateSuccess(exitVal)) {
-                logger.error("Error is [" + getDetails(process) + "]");
+            process = Utils.runProcess(new String[]{cmdStr, argStr}, logger);
+            errStreamData = Utils.getStreamOutput(process.getErrorStream(), logger);
+            if (Utils.hasValue(errStreamData)) {
+                success = false;
+                logger.error("Error stream data [" + errStreamData + "]");
             }
-        } catch (InterruptedException e) {
-            if (attempt == RETRY_ATTEMPTS) {
-                logger.error("Command interrupted " + e.getMessage() + ". Details: ", e);
-            } else {
-                logger.error("Command interrupted " + e.getMessage());
-            }
-            exitVal = -1;
         } catch (Exception e) {
+            success = false;
             if (attempt == RETRY_ATTEMPTS) {
-                logger.error("Error in running command " + e.getMessage() + ". Details: ", e);
+                logger.error("Error in running command " + e.getMessage() + "]. Details: ", e);
             } else {
                 logger.error("Error in running command " + e.getMessage());
             }
-            exitVal = -1;
         }
 
-        if (!isExitStateSuccess(exitVal) && attempt < RETRY_ATTEMPTS) {
+        if (success && attempt < RETRY_ATTEMPTS) {
             logger.error("Attempt failed for cmd [" + cmd + "], retrying...");
             attempt++;
-            exitVal = runCommand(cmd, attempt);
+            success = runCommand(cmd, attempt);
         }
 
-        return exitVal;
-    }
-
-    private String getDetails(Process process) {
-        return Utils.getProcessOutput(process, logger);
-    }
-
-    private String getExitState(int exitVal) {
-        return isExitStateSuccess(exitVal) ? "success" : "failure";
-    }
-
-    private boolean isExitStateSuccess(int exitVal) {
-        return (0 == exitVal);
+        return success;
     }
 
 }
