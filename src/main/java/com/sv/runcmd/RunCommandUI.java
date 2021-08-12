@@ -623,7 +623,8 @@ public class RunCommandUI extends AppFrame {
 
     public void runCmdCallable(String cmd) {
         String msg = runCommand.execCommand(cmd);
-        if (!Utils.hasValue(msg) || !msg.equalsIgnoreCase("true")) {
+        logger.log("Message from running command " + Utils.addBraces(msg));
+        if (!Utils.hasValue(msg) || msg.equalsIgnoreCase("true")) {
             lastCmdRun = cmd;
             updateInfo();
             //updateTitle(lastCmdRun);
