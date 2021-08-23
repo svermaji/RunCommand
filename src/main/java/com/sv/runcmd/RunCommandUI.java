@@ -6,7 +6,7 @@ import com.sv.core.exception.AppException;
 import com.sv.core.logger.MyLogger;
 import com.sv.runcmd.helpers.*;
 import com.sv.swingui.SwingUtils;
-import com.sv.swingui.UIConstants.ColorsNFonts;
+import com.sv.swingui.UIConstants.*;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
@@ -21,7 +21,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +41,7 @@ public class RunCommandUI extends AppFrame {
     private final String SEPARATOR = "~";
     public static final int RECENT_LIMIT = 10;
     private String recentFiltersStr;
+    private final RunCommandUtil commandUtil;
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
@@ -111,14 +111,12 @@ public class RunCommandUI extends AppFrame {
 
     private UIManager.LookAndFeelInfo[] lookAndFeels;
 
-    private final RunCommand runCommand;
-
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(5);
 
-    public RunCommandUI(RunCommand runCommand, MyLogger logger) {
+    public RunCommandUI(MyLogger logger) {
         super(APP_TITLE);
-        this.runCommand = runCommand;
         this.logger = logger;
+        this.commandUtil = new RunCommandUtil(logger);
         SwingUtilities.invokeLater(this::initComponents);
     }
 
@@ -292,7 +290,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private String copyCmdToClipboard() {
-        return ".\\cmds\\cp-clip.bat \"" + runCommand.getCmdToRun(getSelectedRowText(tblCommands, 0)) + "\"";
+        return ".\\cmds\\cp-clip.bat \"" + commandUtil.getCmdToRun(getSelectedRowText(tblCommands, 0)) + "\"";
     }
 
     public void debug(String s) {
@@ -622,7 +620,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void runCmdCallable(String cmd) {
-        String msg = runCommand.execCommand(cmd);
+        String msg = commandUtil.execCommand(cmd);
         logger.log("Message from running command " + Utils.addBraces(msg));
         if (!Utils.hasValue(msg) || msg.equalsIgnoreCase("true")) {
             lastCmdRun = cmd;
