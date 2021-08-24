@@ -6,7 +6,6 @@ import com.sv.core.exception.AppException;
 import com.sv.core.logger.MyLogger;
 import com.sv.runcmd.helpers.*;
 import com.sv.swingui.SwingUtils;
-import com.sv.swingui.UIConstants.*;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
@@ -40,12 +39,15 @@ public class RunCommandUI extends AppFrame {
     private int colorIdx = 0;
     private final String SEPARATOR = "~";
     public static final int RECENT_LIMIT = 10;
-    private String recentFiltersStr;
+    private String recentFiltersStr, closeCommand;
     private final RunCommandUtil commandUtil;
+    private RunCommandTimer runCommandTimer;
+    private Timer cmdTimer, cmdTimerTrack;
+    private String timerTrack = "";
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
-        RecentFilters, Filter
+        RecentFilters, Filter, CloseCommand
     }
 
     public enum COLS {
@@ -84,6 +86,8 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
+    private static final long MIN_15 = MIN_1 * 15;
+    private static final long MIN_30 = MIN_1 * 30;
     private static final int DEFAULT_NUM_ROWS = 10;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
@@ -99,8 +103,9 @@ public class RunCommandUI extends AppFrame {
 
     private JCheckBoxMenuItem jcbRT, jcbRC;
     private JMenuBar mbarSettings;
+    private JMenu menuTime;
     private AppTextField txtFilter;
-    private JButton btnReload, btnConfig, btnCmd, btnClear;
+    private JButton btnReload, btnClear;
     private JButton[] btnFavs;
     private List<String> favs;
     // Should be either 5 or 10
@@ -117,6 +122,8 @@ public class RunCommandUI extends AppFrame {
         super(APP_TITLE);
         this.logger = logger;
         this.commandUtil = new RunCommandUtil(logger);
+        this.cmdTimer = new Timer("Timer");
+        this.cmdTimerTrack = new Timer("TimerTrack");
         SwingUtilities.invokeLater(this::initComponents);
     }
 
@@ -125,6 +132,7 @@ public class RunCommandUI extends AppFrame {
      */
     private void initComponents() {
 
+        // TODO recent menu
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
 
         final int MAX_FAV_ALLOWED = 10;
@@ -133,6 +141,7 @@ public class RunCommandUI extends AppFrame {
         themeIdx = configs.getIntConfig(Configs.ThemeIndex.name());
         colorIdx = configs.getIntConfig(Configs.ColorIndex.name());
         recentFiltersStr = getCfg(Configs.RecentFilters);
+        closeCommand = getCfg(Configs.CloseCommand);
 
         // if config value of < 5
         if (favBtnLimit < MIN_FAV_ALLOWED) {
@@ -158,7 +167,7 @@ public class RunCommandUI extends AppFrame {
 
         UIName uin = UIName.LBL_FILTER;
         Border lineBorder = new LineBorder(Color.black, 5, true);
-        final int TXT_COLS = 10;
+        final int TXT_COLS = 20;
         lblInfo = new JLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
@@ -171,10 +180,6 @@ public class RunCommandUI extends AppFrame {
 
         btnReload = new AppButton("Reload", 'R');
         btnReload.addActionListener(evt -> reloadFile());
-        btnConfig = new AppButton("Open Cfg", 'O');
-        btnConfig.addActionListener(evt -> openConfig());
-        btnCmd = new AppButton("Open Cmd", 'd');
-        btnCmd.addActionListener(evt -> openCmd());
         btnClear = new AppButton("Clear", 'C');
         btnClear.addActionListener(evt -> clearFilter());
 
@@ -248,8 +253,6 @@ public class RunCommandUI extends AppFrame {
         filterPanel.add(txtFilter);
         filterPanel.add(btnClear);
         filterPanel.add(btnReload);
-        filterPanel.add(btnConfig);
-        filterPanel.add(btnCmd);
         filterPanel.add(btnExit);
         filterPanel.setBorder(EMPTY_BORDER);
 
@@ -341,6 +344,7 @@ public class RunCommandUI extends AppFrame {
     private void createAppMenu() {
         mbarSettings = new JMenuBar();
         JMenu menuSettings = new JMenu("Settings");
+        menuTime = new JMenu("");
 
         char ch = 's';
         menuSettings.setMnemonic(ch);
@@ -374,8 +378,46 @@ public class RunCommandUI extends AppFrame {
         menuSettings.addSeparator();
         menuSettings.add(jcbRT);
         menuSettings.add(SwingUtils.getThemesMenu(this, logger));
+        menuSettings.addSeparator();
+
+        UIName u = UIName.MNU_CFG;
+        JMenuItem miCfg = new JMenuItem(u.name);
+        miCfg.setMnemonic(u.mnemonic);
+        miCfg.setToolTipText(u.tip);
+        miCfg.addActionListener(e -> openConfig());
+        menuSettings.add(miCfg);
+
+        u = UIName.MNU_CMD;
+        JMenuItem miCmd = new JMenuItem(u.name);
+        miCmd.setMnemonic(u.mnemonic);
+        miCmd.setToolTipText(u.tip);
+        miCmd.addActionListener(e -> openCmd());
+        menuSettings.add(miCmd);
+
+        menuSettings.addSeparator();
+        u = UIName.MNU_CLOSE_15;
+        JMenuItem mi15 = new JMenuItem(u.name);
+        mi15.setMnemonic(u.mnemonic);
+        mi15.setToolTipText(u.tip);
+        mi15.addActionListener(e -> runTimerCmd("", MIN_15));
+        menuSettings.add(mi15);
+
+        u = UIName.MNU_CLOSE_30;
+        JMenuItem mi30 = new JMenuItem(u.name);
+        mi30.setMnemonic(u.mnemonic);
+        mi30.setToolTipText(u.tip);
+        mi30.addActionListener(e -> runTimerCmd("", MIN_30));
+        menuSettings.add(mi30);
+
+        u = UIName.MNU_TIMER_CANCEL;
+        JMenuItem miCancel = new JMenuItem(u.name);
+        miCancel.setMnemonic(u.mnemonic);
+        miCancel.setToolTipText(u.tip);
+        miCancel.addActionListener(e -> cancelTrackTimer ());
+        menuSettings.add(miCancel);
 
         mbarSettings.add(menuSettings);
+        mbarSettings.add(menuTime);
 
         setJMenuBar(mbarSettings);
     }
@@ -386,8 +428,6 @@ public class RunCommandUI extends AppFrame {
         cmpList.add(txtFilter);
         cmpList.add(btnClear);
         cmpList.add(btnReload);
-        cmpList.add(btnConfig);
-        cmpList.add(btnCmd);
         cmpList.add(tblCommands);
         cmpList.addAll(Arrays.asList(btnFavs));
 
@@ -457,6 +497,31 @@ public class RunCommandUI extends AppFrame {
             themeIdx = x;
             logThemeChangeInfo(lnf);
         }
+    }
+
+    public void cancelTrackTimer() {
+        cmdTimer.cancel();
+        cmdTimerTrack.cancel();
+        runCommandTimer = null;
+        trackTimer();
+    }
+
+    public void trackTimer() {
+        timerTrack = "";
+        if (runCommandTimer != null) {
+            timerTrack = runCommandTimer.getDateTimeDiff();
+        }
+        menuTime.setText(timerTrack);
+    }
+
+    public void runTimerCmd(String cmd, long time) {
+        cmdTimer.cancel();
+        cmdTimerTrack.cancel();
+        runCommandTimer = new RunCommandTimer(logger, commandUtil, cmd, time);
+        cmdTimerTrack = new Timer();
+        cmdTimerTrack.schedule(new TimerTrackTask(this), 0, SEC_1);
+        cmdTimer = new Timer();
+        cmdTimer.schedule(runCommandTimer, time);
     }
 
     private void logThemeChangeInfo(UIManager.LookAndFeelInfo lfClass) {
@@ -713,6 +778,10 @@ public class RunCommandUI extends AppFrame {
 
     public String getRecentFilters() {
         return recentFiltersStr;
+    }
+
+    public String getCloseCommand() {
+        return closeCommand;
     }
 
     public String getFilter() {
