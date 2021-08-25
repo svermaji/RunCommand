@@ -2,6 +2,7 @@ package com.sv.runcmd;
 
 public enum UIName {
     LBL_FILTER("Filter", 'F'),
+    LBL_R_FILTERS("Recent", 'R', "Recent used filters."),
     MNU_COPY("Copy Command", 'C'),
     MNU_CFG("Open config location", 'G'),
     MNU_CMD("Open command", 'D'),

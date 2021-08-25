@@ -40,9 +40,11 @@ public class RunCommandUI extends AppFrame {
     private final String SEPARATOR = "~";
     public static final int RECENT_LIMIT = 10;
     private String recentFiltersStr, closeCommand;
+    private final String TXT_F_MAP_KEY = "Action.FilterMenuItem";
     private final RunCommandUtil commandUtil;
     private RunCommandTimer runCommandTimer;
     private Timer cmdTimer, cmdTimerTrack;
+    private JMenu menuRFilters;
     private String timerTrack = "";
 
     enum Configs {
@@ -183,6 +185,15 @@ public class RunCommandUI extends AppFrame {
         btnClear = new AppButton("Clear", 'C');
         btnClear.addActionListener(evt -> clearFilter());
 
+        uin = UIName.LBL_R_FILTERS;
+        JMenuBar mb = new JMenuBar();
+        menuRFilters = new JMenu(uin.name);
+        mb.setBackground(Color.lightGray);
+        menuRFilters.setMnemonic(uin.mnemonic);
+        menuRFilters.setToolTipText(uin.tip);
+        mb.add(menuRFilters);
+        updateRecentMenu(menuRFilters, getRecentFiltersList(), txtFilter, TXT_F_MAP_KEY);
+
         JButton btnExit = new AppExitButton(true);
 
         createTable();
@@ -251,6 +262,7 @@ public class RunCommandUI extends AppFrame {
         filterPanel.setLayout(new GridBagLayout());
         filterPanel.add(lblFilter);
         filterPanel.add(txtFilter);
+        filterPanel.add(mb);
         filterPanel.add(btnClear);
         filterPanel.add(btnReload);
         filterPanel.add(btnExit);
@@ -292,6 +304,10 @@ public class RunCommandUI extends AppFrame {
         });
     }
 
+    private String[] getRecentFiltersList() {
+        return recentFiltersStr.split(SEPARATOR);
+    }
+
     private String copyCmdToClipboard() {
         return ".\\cmds\\cp-clip.bat \"" + commandUtil.getCmdToRun(getSelectedRowText(tblCommands, 0)) + "\"";
     }
@@ -301,12 +317,13 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void updateRecentFilters() {
-        debug("update recent search values");
+        logger.log("update recent filter values");
 
         String s = getFilter();
         if (Utils.hasValue(s)) {
             recentFiltersStr = checkItems(s, recentFiltersStr);
             String[] arrF = recentFiltersStr.split(SEPARATOR);
+            updateRecentMenu(menuRFilters, arrF, txtFilter, TXT_F_MAP_KEY);
             txtFilter.setAutoCompleteArr(arrF);
         }
     }
@@ -581,6 +598,29 @@ public class RunCommandUI extends AppFrame {
             b.setToolTipText("");
             b.setEnabled(false);
         }
+    }
+
+    private void updateRecentMenu(JMenu m, String[] arr, JTextField txtF, String mapKey) {
+        m.removeAll();
+
+        int i = 'a';
+        for (String a : arr) {
+            char ch = (char) i;
+            JMenuItem mi = new JMenuItem(ch + SP_DASH_SP + a);
+            mi.addActionListener(e -> txtF.setText(a));
+            if (i <= 'z') {
+                mi.setMnemonic(i++);
+                addActionOnMenu(new RecentMenuAction(txtF, a), mi, ch, mapKey + ch);
+            }
+            m.add(mi);
+        }
+    }
+
+    private void addActionOnMenu(AbstractAction action, JMenuItem mi, char keycode, String mapKey) {
+        InputMap im = mi.getInputMap();
+        im.put(KeyStroke.getKeyStroke(keycode, 0), mapKey);
+        ActionMap am = mi.getActionMap();
+        am.put(mapKey, action);
     }
 
     private void redrawFavBtns() {
