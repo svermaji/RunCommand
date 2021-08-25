@@ -169,7 +169,7 @@ public class RunCommandUI extends AppFrame {
 
         UIName uin = UIName.LBL_FILTER;
         Border lineBorder = new LineBorder(Color.black, 5, true);
-        final int TXT_COLS = 20;
+        final int TXT_COLS = 15;
         lblInfo = new JLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
