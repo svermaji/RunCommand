@@ -7,7 +7,8 @@ Utility in Java to run command like batch file or sh file or any other command
 * Added context menu to copy command from a row
 * Button to open config folder and command prompt (on Windows only)
 * In conf.config favourite button limit can be defined as 5 or 10
-* Settings menu added for selecting different colors and LookAndFeels
+* Settings menu added for selecting different colors and LookAndFeels and Timer close command
+* Recent filters menu added
 * Settings menu is now a bar
 * Filter text box will be saved from last session and reapplied.
 * Recent filters applied will come as auto complete.
@@ -33,7 +34,10 @@ Utility in Java to run command like batch file or sh file or any other command
 
 #### Images<br>
 * Application Present Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-1-dec.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-25-aug-21.png) 
+
+* Application Present Menu Image<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-25-aug-21-menu.png)
 
 * First cut<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-first-cut.png) 
@@ -49,3 +53,4 @@ Utility in Java to run command like batch file or sh file or any other command
 
 * 10 Favourites<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-10-favs.png) 
+

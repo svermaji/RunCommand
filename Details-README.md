@@ -2,6 +2,11 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 25-Aug-2021<br>
+* Settings menu have more items
+* Timer for close command
+* Recent filters added
+
 #### On 1-Dec-2020<br>
 * Settings menu is on top bar now
 

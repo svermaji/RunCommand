@@ -134,7 +134,6 @@ public class RunCommandUI extends AppFrame {
      */
     private void initComponents() {
 
-        // TODO recent menu
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
 
         final int MAX_FAV_ALLOWED = 10;
@@ -180,9 +179,11 @@ public class RunCommandUI extends AppFrame {
         txtFilter = new AppTextField("", TXT_COLS, getFilters());
         AppLabel lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
 
-        btnReload = new AppButton("Reload", 'R');
+        uin = UIName.BTN_RELOAD;
+        btnReload = new AppButton(uin.name, uin.mnemonic);
         btnReload.addActionListener(evt -> reloadFile());
-        btnClear = new AppButton("Clear", 'C');
+        uin = UIName.BTN_CLEAR;
+        btnClear = new AppButton(uin.name, uin.mnemonic);
         btnClear.addActionListener(evt -> clearFilter());
 
         uin = UIName.LBL_R_FILTERS;
