@@ -12,14 +12,14 @@ import java.util.concurrent.TimeUnit;
 public class RunCommandTimer extends TimerTask {
 
     private final MyLogger logger;
-    private final RunCommandUtil commandUtil;
+    private final RunCommandUI runCommandUI;
     private final String cmd;
     private final LocalDateTime startTime;
     private final long timeLimit;
 
-    public RunCommandTimer(MyLogger logger, RunCommandUtil commandUtil, String cmd, long timeLimit) {
+    public RunCommandTimer(MyLogger logger, RunCommandUI runCommandUI, String cmd, long timeLimit) {
         this.logger = logger;
-        this.commandUtil = commandUtil;
+        this.runCommandUI = runCommandUI;
         this.cmd = cmd;
         this.timeLimit = timeLimit;
         this.startTime = LocalDateTime.now();
@@ -41,7 +41,8 @@ public class RunCommandTimer extends TimerTask {
 
     @Override
     public void run() {
-        commandUtil.execCommand(cmd);
+        logger.log("Running command from timer as " + Utils.addBraces(cmd));
+        runCommandUI.execCommand(cmd);
     }
 }
 
