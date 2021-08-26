@@ -34,7 +34,7 @@ public class RunCommandTimer extends TimerTask {
         long sec = getDateTimeDiffSec();
         long min = TimeUnit.SECONDS.toMinutes(sec);
         sec -= TimeUnit.MINUTES.toSeconds(min);
-        String time = min + Constants.COLON + sec;
+        String time = min + Constants.COLON + (sec > 9 ? sec : "0" + sec);
         logger.debug("Time remaining " + Utils.addBraces(time));
         return time;
     }
