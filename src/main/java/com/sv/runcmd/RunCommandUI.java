@@ -39,7 +39,7 @@ public class RunCommandUI extends AppFrame {
     private int colorIdx = 0;
     private final String SEPARATOR = "~";
     public static final int RECENT_LIMIT = 10;
-    private String recentFiltersStr, closeCommand;
+    private String recentFiltersStr, closeCommandStr;
     private final String TXT_F_MAP_KEY = "Action.FilterMenuItem";
     private final RunCommandUtil commandUtil;
     private RunCommandTimer runCommandTimer;
@@ -142,7 +142,7 @@ public class RunCommandUI extends AppFrame {
         themeIdx = configs.getIntConfig(Configs.ThemeIndex.name());
         colorIdx = configs.getIntConfig(Configs.ColorIndex.name());
         recentFiltersStr = getCfg(Configs.RecentFilters);
-        closeCommand = getCfg(Configs.CloseCommand);
+        closeCommandStr = getCfg(Configs.CloseCommand);
 
         // if config value of < 5
         if (favBtnLimit < MIN_FAV_ALLOWED) {
@@ -417,14 +417,14 @@ public class RunCommandUI extends AppFrame {
         JMenuItem mi15 = new JMenuItem(u.name);
         mi15.setMnemonic(u.mnemonic);
         mi15.setToolTipText(u.tip);
-        mi15.addActionListener(e -> runTimerCmd("", MIN_15));
+        mi15.addActionListener(e -> runTimerCmd(closeCommandStr, MIN_15));
         menuSettings.add(mi15);
 
         u = UIName.MNU_CLOSE_30;
         JMenuItem mi30 = new JMenuItem(u.name);
         mi30.setMnemonic(u.mnemonic);
         mi30.setToolTipText(u.tip);
-        mi30.addActionListener(e -> runTimerCmd("", MIN_30));
+        mi30.addActionListener(e -> runTimerCmd(closeCommandStr, MIN_30));
         menuSettings.add(mi30);
 
         u = UIName.MNU_TIMER_CANCEL;
@@ -518,6 +518,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void cancelTrackTimer() {
+        logger.log("Cancelling command timer if running");
         cmdTimer.cancel();
         cmdTimerTrack.cancel();
         runCommandTimer = null;
@@ -530,12 +531,15 @@ public class RunCommandUI extends AppFrame {
             timerTrack = runCommandTimer.getDateTimeDiff();
         }
         menuTime.setText(timerTrack);
+        if (timerTrack.equals("0:00")) {
+            cancelTrackTimer();
+        }
     }
 
     public void runTimerCmd(String cmd, long time) {
-        cmdTimer.cancel();
-        cmdTimerTrack.cancel();
-        runCommandTimer = new RunCommandTimer(logger, commandUtil, cmd, time);
+        cancelTrackTimer();
+        logger.log("Scheduling command " + Utils.addBraces(cmd) + " for time " + Utils.addBraces(Utils.getTimeMS(time)));
+        runCommandTimer = new RunCommandTimer(logger, this, cmd, time);
         cmdTimerTrack = new Timer();
         cmdTimerTrack.schedule(new TimerTrackTask(this), 0, SEC_1);
         cmdTimer = new Timer();
@@ -811,6 +815,7 @@ public class RunCommandUI extends AppFrame {
      */
     private void exitForm() {
         configs.saveConfig(this);
+        cancelTrackTimer();
         setVisible(false);
         dispose();
         logger.dispose();
@@ -822,7 +827,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     public String getCloseCommand() {
-        return closeCommand;
+        return closeCommandStr;
     }
 
     public String getFilter() {
