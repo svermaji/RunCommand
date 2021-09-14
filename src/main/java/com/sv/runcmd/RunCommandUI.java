@@ -19,11 +19,12 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
@@ -43,7 +44,6 @@ public class RunCommandUI extends AppFrame {
     private Timer cmdTimer, cmdTimerTrack;
     private JMenu menuRFilters;
     private String timerTrack = "";
-    private String hostProp = "";
 
     enum AppProps {
         Host
@@ -535,10 +535,17 @@ public class RunCommandUI extends AppFrame {
 
     public void trackTimer() {
         timerTrack = "";
+        long sec = 0;
         if (runCommandTimer != null) {
-            timerTrack = runCommandTimer.getDateTimeDiff();
+            sec = runCommandTimer.getDateTimeDiffSec();
+            timerTrack = runCommandTimer.getDateTimeDiff(sec);
         }
         menuTime.setText(timerTrack);
+        if (sec < TimeUnit.MILLISECONDS.toSeconds(MIN_1)) {
+            menuTime.setForeground(Color.RED);
+        } else {
+            menuTime.setForeground(Color.BLACK);
+        }
         if (timerTrack.equals("0:00")) {
             cancelTrackTimer();
         }
