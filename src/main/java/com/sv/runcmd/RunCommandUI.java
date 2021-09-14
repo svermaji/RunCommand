@@ -1,5 +1,6 @@
 package com.sv.runcmd;
 
+import com.sv.core.Constants;
 import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
 import com.sv.core.exception.AppException;
@@ -18,11 +19,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
@@ -46,6 +43,11 @@ public class RunCommandUI extends AppFrame {
     private Timer cmdTimer, cmdTimerTrack;
     private JMenu menuRFilters;
     private String timerTrack = "";
+    private String hostProp = "";
+
+    enum AppProps {
+        Host
+    }
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
@@ -98,6 +100,7 @@ public class RunCommandUI extends AppFrame {
 
     private final MyLogger logger;
     private DefaultConfigs configs;
+    private Properties appProps;
     private DefaultTableModel model;
     private JLabel lblInfo;
     private AppTable tblCommands;
@@ -135,6 +138,7 @@ public class RunCommandUI extends AppFrame {
     private void initComponents() {
 
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
+        appProps = Utils.readPropertyFile("./app.properties", logger);
 
         final int MAX_FAV_ALLOWED = 10;
         final int MIN_FAV_ALLOWED = 5;
@@ -359,6 +363,10 @@ public class RunCommandUI extends AppFrame {
         return configs.getConfig(c.name());
     }
 
+    public String getAppProp(AppProps a) {
+        return appProps.getProperty(a.name());
+    }
+
     private void createAppMenu() {
         mbarSettings = new JMenuBar();
         JMenu menuSettings = new JMenu("Settings");
@@ -431,7 +439,7 @@ public class RunCommandUI extends AppFrame {
         JMenuItem miCancel = new JMenuItem(u.name);
         miCancel.setMnemonic(u.mnemonic);
         miCancel.setToolTipText(u.tip);
-        miCancel.addActionListener(e -> cancelTrackTimer ());
+        miCancel.addActionListener(e -> cancelTrackTimer());
         menuSettings.add(miCancel);
 
         mbarSettings.add(menuSettings);
@@ -721,7 +729,8 @@ public class RunCommandUI extends AppFrame {
         String tip = tip1 + SPACE + tip2;
         lblInfo.setToolTipText(tip);
 
-        String txt = HTML_STR + CENTER_STR + cmdRun + BR + BR +
+        String txt = HTML_STR + CENTER_STR + cmdRun + SP_DASH_SP
+                + getAppProp(AppProps.Host) + BR + BR +
                 "<span style='font-size:9px'>" + tip2 + SPAN_END + CENTER_END + HTML_END;
         lblInfo.setText(txt);
 
@@ -758,7 +767,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void createRows() {
-        List<String> commands = readCommands();
+        List<String> commands = Utils.readFile("./commands.config", logger);
 
         if (commands == null) {
             throw new AppException("Commands are null.  No command to run.");
@@ -784,15 +793,6 @@ public class RunCommandUI extends AppFrame {
         return cmd.contains(chk) ?
                 cmd.substring(cmd.indexOf(chk) + chk.length(), cmd.lastIndexOf(")")) :
                 cmd.substring(cmd.lastIndexOf(SLASH) + SLASH.length());
-    }
-
-    private List<String> readCommands() {
-        try {
-            return Files.readAllLines(Paths.get("./commands.config"));
-        } catch (IOException e) {
-            logger.error("Error in loading commands.");
-        }
-        return null;
     }
 
     private void setPosition() {
