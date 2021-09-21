@@ -31,7 +31,10 @@ public class RunCommandTimer extends TimerTask {
     }
 
     public String getDateTimeDiff() {
-        long sec = getDateTimeDiffSec();
+        return getDateTimeDiff(getDateTimeDiffSec());
+    }
+
+    public String getDateTimeDiff(long sec) {
         long min = TimeUnit.SECONDS.toMinutes(sec);
         sec -= TimeUnit.MINUTES.toSeconds(min);
         String time = min + Constants.COLON + (sec > 9 ? sec : "0" + sec);
