@@ -146,18 +146,18 @@ public class RunCommandUI extends AppFrame {
 
         // if config value of < 5
         if (favBtnLimit < MIN_FAV_ALLOWED) {
-            logger.log("favBtnLimit reset to " + MIN_FAV_ALLOWED);
+            logger.info("favBtnLimit reset to " + MIN_FAV_ALLOWED);
             favBtnLimit = MIN_FAV_ALLOWED;
         }
         // if config value is between 6 to 9 or greater than 10
         if (favBtnLimit > MIN_FAV_ALLOWED && favBtnLimit != MAX_FAV_ALLOWED) {
-            logger.log("favBtnLimit reset to " + MAX_FAV_ALLOWED);
+            logger.info("favBtnLimit reset to " + MAX_FAV_ALLOWED);
             favBtnLimit = MAX_FAV_ALLOWED;
         }
         numOnFav = configs.getBooleanConfig(Configs.NumOnFav.name());
         lookAndFeels = SwingUtils.getAvailableLAFs();
 
-        logger.log(String.format(
+        logger.info(String.format(
                 "favBtnLimit [%s], numOnFav [%s], themeIdx [%s], colorIdx [%s], look-n-Feel count [%s]",
                 favBtnLimit, numOnFav, themeIdx, colorIdx, lookAndFeels.length));
 
@@ -318,7 +318,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void updateRecentFilters() {
-        logger.log("update recent filter values");
+        logger.info("update recent filter values");
 
         String s = getFilter();
         if (Utils.hasValue(s)) {
@@ -464,11 +464,11 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void applyColor(ColorsNFonts color) {
-        //logger.log("Applying color: " + color.name().toLowerCase());
+        //logger.info("Applying color: " + color.name().toLowerCase());
         lblInfo.setBackground(color.getBk());
         lblInfo.setForeground(color.getFg());
         Font font = getLblInfoFont(color.getFont());
-        logger.log("Applying color and font: " + font.getName());
+        logger.info("Applying color and font: " + font.getName());
         lblInfo.setFont(getLblInfoFont(color.getFont()));
         lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
         lastColorApplied = color.name().toLowerCase();
@@ -518,7 +518,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void cancelTrackTimer() {
-        logger.log("Cancelling command timer if running");
+        logger.info("Cancelling command timer if running");
         cmdTimer.cancel();
         cmdTimerTrack.cancel();
         runCommandTimer = null;
@@ -538,7 +538,7 @@ public class RunCommandUI extends AppFrame {
 
     public void runTimerCmd(String cmd, long time) {
         cancelTrackTimer();
-        logger.log("Scheduling command " + Utils.addBraces(cmd) + " for time " + Utils.addBraces(Utils.getTimeMS(time)));
+        logger.info("Scheduling command " + Utils.addBraces(cmd) + " for time " + Utils.addBraces(Utils.getTimeMS(time)));
         runCommandTimer = new RunCommandTimer(logger, this, cmd, time);
         cmdTimerTrack = new Timer();
         cmdTimerTrack.schedule(new TimerTrackTask(this), 0, SEC_1);
@@ -725,13 +725,13 @@ public class RunCommandUI extends AppFrame {
                 "<span style='font-size:9px'>" + tip2 + SPAN_END + CENTER_END + HTML_END;
         lblInfo.setText(txt);
 
-        //logger.log(tip + ", Thread pool current size: " + threadPool.toString());
-        logger.log(tip);
+        //logger.info(tip + ", Thread pool current size: " + threadPool.toString());
+        logger.info(tip);
     }
 
     public void runCmdCallable(String cmd) {
         String msg = commandUtil.execCommand(cmd);
-        logger.log("Message from running command " + Utils.addBraces(msg));
+        logger.info("Message from running command " + Utils.addBraces(msg));
         if (!Utils.hasValue(msg) || msg.equalsIgnoreCase("true")) {
             lastCmdRun = cmd;
             updateInfo();

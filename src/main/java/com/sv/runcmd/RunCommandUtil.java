@@ -21,7 +21,7 @@ public class RunCommandUtil {
 
     public boolean runCommands(String[] cmds) {
 
-        logger.log("Running commands " + Arrays.asList(cmds));
+        logger.info("Running commands " + Arrays.asList(cmds));
 
         boolean rsp = true;
         List<String> successCmds = new ArrayList<>();
@@ -40,10 +40,10 @@ public class RunCommandUtil {
             }
             successCmds.add(cmd);
         }
-        logger.log("skippedIndex is [" + skippedIndex + "]");
+        logger.info("skippedIndex is [" + skippedIndex + "]");
         List<String> skippedCmds = new ArrayList<>(Arrays.asList(cmds).subList(skippedIndex, cmdsLength));
 
-        logger.log("Commands run successfully " + successCmds + ", skipped commands " + skippedCmds +
+        logger.info("Commands run successfully " + successCmds + ", skipped commands " + skippedCmds +
                 " and failed command is [" + failedCmd + "]");
 
         return rsp;
@@ -61,7 +61,7 @@ public class RunCommandUtil {
 
     public boolean runCommand(String cmd, int attempt) {
 
-        logger.log("Attempt [" + attempt + "/" + RETRY_ATTEMPTS + "] for command [" + cmd + "]");
+        logger.info("Attempt [" + attempt + "/" + RETRY_ATTEMPTS + "] for command [" + cmd + "]");
         boolean success = true;
         try {
             String cmdStr = cmd;
@@ -71,7 +71,7 @@ public class RunCommandUtil {
                 cmdStr = cmd.substring(0, idx);
                 argStr = cmd.substring(idx + 1);
             }
-            logger.log("Command [" + cmdStr + "] and arg [" + argStr + "]");
+            logger.info("Command [" + cmdStr + "] and arg [" + argStr + "]");
             Utils.runProcess(new String[]{cmdStr, argStr}, logger);
         } catch (Exception e) {
             success = false;
@@ -107,13 +107,13 @@ public class RunCommandUtil {
 
     public void execCmdAsProcess(String cmd) {
         String cmdStr = getCmdToRun(cmd);
-        logger.log("Calling command [" + cmdStr + "]");
+        logger.info("Calling command [" + cmdStr + "]");
         Utils.logProcessOutput(Utils.runProcess(cmdStr, logger), logger);
     }
 
     public String execCommand(String cmd) {
         String cmdStr = getCmdToRun(cmd);
-        logger.log("Calling command [" + cmdStr + "]");
+        logger.info("Calling command [" + cmdStr + "]");
 
         if (isPidCmd(cmdStr)) {
             tracePid(cmdStr);
@@ -172,7 +172,7 @@ public class RunCommandUtil {
                 }
             } while (line != null);
 
-            logger.log("PID String captured as " + pidString + " from output: " + sb);
+            logger.info("PID String captured as " + pidString + " from output: " + sb);
 
             if (!Utils.hasValue(pidString)) {
                 sb = new StringBuilder();

@@ -41,7 +41,7 @@ public class RunCommandTimer extends TimerTask {
 
     @Override
     public void run() {
-        logger.log("Running command from timer as " + Utils.addBraces(cmd));
+        logger.info("Running command from timer as " + Utils.addBraces(cmd));
         runCommandUI.execCommand(cmd);
     }
 }
