@@ -43,6 +43,7 @@ public class RunCommandUI extends AppFrame {
     private List<JComponent> toColor;
     private Timer cmdTimer, cmdTimerTrack;
     private JMenu menuRFilters;
+    private JMenuBar mb;
     private String timerTrack = "";
 
     enum AppProps {
@@ -107,7 +108,7 @@ public class RunCommandUI extends AppFrame {
     private JPopupMenu tblRowsPopupMenu = new JPopupMenu();
 
     private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp;
-    private static Color highlightColor, highlightTextColor;
+    private static Color highlightColor, highlightTextColor, selectionColor, selectionTextColor;
     private JMenuBar mbarSettings;
     private JMenu menuTime;
     private AppTextField txtFilter;
@@ -194,13 +195,19 @@ public class RunCommandUI extends AppFrame {
         btnClear.addActionListener(evt -> clearFilter());
 
         uin = UIName.LBL_R_FILTERS;
-        JMenuBar mb = new JMenuBar();
+        mb = new JMenuBar();
         menuRFilters = new JMenu(uin.name);
         mb.setBackground(Color.lightGray);
         menuRFilters.setMnemonic(uin.mnemonic);
         menuRFilters.setToolTipText(uin.tip);
         mb.add(menuRFilters);
         updateRecentMenu(menuRFilters, getRecentFiltersList(), txtFilter, TXT_F_MAP_KEY);
+
+        JToolBar jtb = new JToolBar();
+        jtb.setFloatable(false);
+        jtb.setRollover(false);
+        jtb.add(txtFilter);
+        jtb.add(mb);
 
         JButton btnExit = new AppExitButton(true);
 
@@ -212,7 +219,6 @@ public class RunCommandUI extends AppFrame {
         // sets the popup menu for the table
         tblCommands.setComponentPopupMenu(tblRowsPopupMenu);
         tblCommands.setOpaque(true);
-        toColor.add(tblCommands.getTableHeader());
         tblCommands.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -238,6 +244,8 @@ public class RunCommandUI extends AppFrame {
         JPanel favBtnPanel2 = new JPanel(new GridBagLayout());
         favBtnPanel.add(favBtnPanel1);
         toColor.add(favBtnPanel);
+        toColor.add(favBtnPanel1);
+        toColor.add(favBtnPanel2);
         if (btnFavs.length > BTN_IN_A_ROW) {
             favBtnPanel.add(favBtnPanel2);
         }
@@ -274,12 +282,12 @@ public class RunCommandUI extends AppFrame {
         JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new GridBagLayout());
         filterPanel.add(lblFilter);
-        filterPanel.add(txtFilter);
-        filterPanel.add(mb);
+        filterPanel.add(jtb);
         filterPanel.add(btnClear);
         filterPanel.add(btnReload);
         filterPanel.add(btnExit);
         filterPanel.setBorder(EMPTY_BORDER);
+        //toColor.add(filterPanel);
 
         lowerPanel.add(filterPanel, BorderLayout.NORTH);
         lowerPanel.add(jspCmds, BorderLayout.CENTER);
@@ -295,9 +303,6 @@ public class RunCommandUI extends AppFrame {
             }
         });
 
-        toColor.add(btnClear);
-        toColor.add(btnReload);
-        toColor.add(menuRFilters);
         setControlsToEnable();
         setPosition();
 
@@ -493,6 +498,8 @@ public class RunCommandUI extends AppFrame {
         //logger.info("Applying color: " + color.name().toLowerCase());
         highlightColor = color.getBk();
         highlightTextColor = color.getFg();
+        selectionColor = color.getSelbk();
+        selectionTextColor = color.getSelfg();
         lblInfo.setBackground(highlightColor);
         lblInfo.setForeground(highlightTextColor);
         Font font = getLblInfoFont(color.getFont());
@@ -507,8 +514,11 @@ public class RunCommandUI extends AppFrame {
     private void changeAppColor() {
         Color cl = jcbmiApplyToApp.getState() ? highlightColor : ORIG_COLOR;
 
-        SwingUtils.setComponentColor(btnFavs, cl, null);
-        SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, null);
+        mb.setBorder(SwingUtils.createLineBorder(selectionColor));
+        JComponent[] ca = {btnClear, btnReload, menuRFilters};
+        SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
+        SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
+        SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
 
     private Font getLblInfoFont(String font) {
@@ -720,6 +730,8 @@ public class RunCommandUI extends AppFrame {
                 Arrays.stream(COLS.class.getEnumConstants()).map(COLS::getToolTip).toArray(String[]::new)
         ));
         tblCommands.setBorder(borderBlue);
+        // due to theme it gets override
+        //toColor.add(tblCommands.getTableHeader());
 
         setUpSorterAndFilter(this, tblCommands, model, txtFilter);
 
