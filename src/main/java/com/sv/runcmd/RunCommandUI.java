@@ -1,6 +1,5 @@
 package com.sv.runcmd;
 
-import com.sv.core.Constants;
 import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
 import com.sv.core.exception.AppException;
@@ -41,6 +40,7 @@ public class RunCommandUI extends AppFrame {
     private final String TXT_F_MAP_KEY = "Action.FilterMenuItem";
     private final RunCommandUtil commandUtil;
     private RunCommandTimer runCommandTimer;
+    private List<JComponent> toColor;
     private Timer cmdTimer, cmdTimerTrack;
     private JMenu menuRFilters;
     private String timerTrack = "";
@@ -51,7 +51,7 @@ public class RunCommandUI extends AppFrame {
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
-        RecentFilters, Filter, CloseCommand
+        RecentFilters, Filter, ApplyColorToApp, CloseCommand
     }
 
     public enum COLS {
@@ -106,7 +106,8 @@ public class RunCommandUI extends AppFrame {
     private AppTable tblCommands;
     private JPopupMenu tblRowsPopupMenu = new JPopupMenu();
 
-    private JCheckBoxMenuItem jcbRT, jcbRC;
+    private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp;
+    private static Color highlightColor, highlightTextColor;
     private JMenuBar mbarSettings;
     private JMenu menuTime;
     private AppTextField txtFilter;
@@ -147,6 +148,8 @@ public class RunCommandUI extends AppFrame {
         colorIdx = configs.getIntConfig(Configs.ColorIndex.name());
         recentFiltersStr = getCfg(Configs.RecentFilters);
         closeCommandStr = getCfg(Configs.CloseCommand);
+
+        toColor = new ArrayList<>();
 
         // if config value of < 5
         if (favBtnLimit < MIN_FAV_ALLOWED) {
@@ -208,6 +211,8 @@ public class RunCommandUI extends AppFrame {
         tblRowsPopupMenu.add(tblRowsMICopy);
         // sets the popup menu for the table
         tblCommands.setComponentPopupMenu(tblRowsPopupMenu);
+        tblCommands.setOpaque(true);
+        toColor.add(tblCommands.getTableHeader());
         tblCommands.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -232,6 +237,7 @@ public class RunCommandUI extends AppFrame {
         JPanel favBtnPanel1 = new JPanel(new GridBagLayout());
         JPanel favBtnPanel2 = new JPanel(new GridBagLayout());
         favBtnPanel.add(favBtnPanel1);
+        toColor.add(favBtnPanel);
         if (btnFavs.length > BTN_IN_A_ROW) {
             favBtnPanel.add(favBtnPanel2);
         }
@@ -255,12 +261,14 @@ public class RunCommandUI extends AppFrame {
         createAppMenu();
 
         JPanel topPanel = new JPanel(new GridLayout(2, 1));
+        toColor.add(topPanel);
         topPanel.add(lblInfo);
         //topPanel.add(controlPanel);
         topPanel.add(favBtnPanel);
         topPanel.setBorder(EMPTY_BORDER);
 
         JPanel lowerPanel = new JPanel(new BorderLayout());
+        toColor.add(lowerPanel);
         JScrollPane jspCmds = new JScrollPane(tblCommands);
 
         JPanel filterPanel = new JPanel();
@@ -287,6 +295,9 @@ public class RunCommandUI extends AppFrame {
             }
         });
 
+        toColor.add(btnClear);
+        toColor.add(btnReload);
+        toColor.add(menuRFilters);
         setControlsToEnable();
         setPosition();
 
@@ -398,6 +409,10 @@ public class RunCommandUI extends AppFrame {
         });
         jcbRC.setMnemonic('r');
 
+        jcbmiApplyToApp = new JCheckBoxMenuItem("Apply color to App", null, configs.getBooleanConfig(Configs.ApplyColorToApp.name()));
+        jcbmiApplyToApp.setMnemonic('y');
+        jcbmiApplyToApp.setToolTipText("Changes colors of complete application whenever highlight color changes");
+
         menuSettings.add(jcbRC);
         menuSettings.add(SwingUtils.getColorsMenu(true, true,
                 false, true, false, this, logger));
@@ -442,6 +457,9 @@ public class RunCommandUI extends AppFrame {
         miCancel.addActionListener(e -> cancelTrackTimer());
         menuSettings.add(miCancel);
 
+        menuSettings.addSeparator();
+        menuSettings.add(jcbmiApplyToApp);
+
         mbarSettings.add(menuSettings);
         mbarSettings.add(menuTime);
 
@@ -473,14 +491,24 @@ public class RunCommandUI extends AppFrame {
 
     private void applyColor(ColorsNFonts color) {
         //logger.info("Applying color: " + color.name().toLowerCase());
-        lblInfo.setBackground(color.getBk());
-        lblInfo.setForeground(color.getFg());
+        highlightColor = color.getBk();
+        highlightTextColor = color.getFg();
+        lblInfo.setBackground(highlightColor);
+        lblInfo.setForeground(highlightTextColor);
         Font font = getLblInfoFont(color.getFont());
         logger.info("Applying color and font: " + font.getName());
         lblInfo.setFont(getLblInfoFont(color.getFont()));
-        lblInfo.setBorder(new LineBorder(color.getFg(), 3, true));
+        lblInfo.setBorder(new LineBorder(highlightTextColor, 3, true));
         lastColorApplied = color.name().toLowerCase();
+        changeAppColor();
         updateInfo();
+    }
+
+    private void changeAppColor() {
+        Color cl = jcbmiApplyToApp.getState() ? highlightColor : ORIG_COLOR;
+
+        SwingUtils.setComponentColor(btnFavs, cl, null);
+        SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, null);
     }
 
     private Font getLblInfoFont(String font) {
@@ -847,6 +875,10 @@ public class RunCommandUI extends AppFrame {
 
     public String getRandomColors() {
         return jcbRC.isSelected() + "";
+    }
+
+    public String getApplyColorToApp() {
+        return jcbmiApplyToApp.isSelected() + "";
     }
 
     public String getColorIndex() {
