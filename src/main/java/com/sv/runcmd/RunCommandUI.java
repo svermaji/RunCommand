@@ -40,6 +40,7 @@ public class RunCommandUI extends AppFrame {
     private final String TXT_F_MAP_KEY = "Action.FilterMenuItem";
     private final RunCommandUtil commandUtil;
     private RunCommandTimer runCommandTimer;
+    private TitledBorder titledFP;
     private List<JComponent> toColor;
     private Timer cmdTimer, cmdTimerTrack;
     private JMenu menuRFilters;
@@ -249,7 +250,7 @@ public class RunCommandUI extends AppFrame {
         if (btnFavs.length > BTN_IN_A_ROW) {
             favBtnPanel.add(favBtnPanel2);
         }
-        TitledBorder titledFP = new TitledBorder("Favourites (starts with *)");
+        titledFP = new TitledBorder("Favourites (starts with *)");
         favBtnPanel.setBorder(titledFP);
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -514,6 +515,7 @@ public class RunCommandUI extends AppFrame {
     private void changeAppColor() {
         Color cl = jcbmiApplyToApp.getState() ? highlightColor : ORIG_COLOR;
 
+        titledFP.setTitleColor(highlightTextColor);
         mb.setBorder(SwingUtils.createLineBorder(selectionColor));
         JComponent[] ca = {btnClear, btnReload, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
