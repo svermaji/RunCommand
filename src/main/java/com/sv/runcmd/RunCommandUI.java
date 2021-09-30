@@ -145,6 +145,9 @@ public class RunCommandUI extends AppFrame {
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
         appProps = Utils.readPropertyFile("./app.properties", logger);
 
+        applyWindowActiveCheck(new WindowChecks[]{
+                WindowChecks.WINDOW_ACTIVE});
+
         final int MAX_FAV_ALLOWED = 10;
         final int MIN_FAV_ALLOWED = 5;
         favBtnLimit = configs.getIntConfig(Configs.FavBtnLimit.name());
@@ -520,20 +523,22 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void applyColor(ColorsNFonts color) {
-        //logger.info("Applying color: " + color.name().toLowerCase());
-        highlightColor = color.getBk();
-        highlightTextColor = color.getFg();
-        selectionColor = color.getSelbk();
-        selectionTextColor = color.getSelfg();
-        lblInfo.setBackground(highlightColor);
-        lblInfo.setForeground(highlightTextColor);
-        Font font = getLblInfoFont(color.getFont());
-        logger.info("Applying color and font: " + font.getName());
-        lblInfo.setFont(getLblInfoFont(color.getFont()));
-        lblInfo.setBorder(new LineBorder(highlightTextColor, 3, true));
-        lastColorApplied = color.name().toLowerCase();
-        changeAppColor();
-        updateInfo();
+        if (windowActive) {
+            //logger.info("Applying color: " + color.name().toLowerCase());
+            highlightColor = color.getBk();
+            highlightTextColor = color.getFg();
+            selectionColor = color.getSelbk();
+            selectionTextColor = color.getSelfg();
+            lblInfo.setBackground(highlightColor);
+            lblInfo.setForeground(highlightTextColor);
+            Font font = getLblInfoFont(color.getFont());
+            logger.info("Applying color and font: " + font.getName());
+            lblInfo.setFont(getLblInfoFont(color.getFont()));
+            lblInfo.setBorder(new LineBorder(highlightTextColor, 3, true));
+            lastColorApplied = color.name().toLowerCase();
+            changeAppColor();
+            updateInfo();
+        }
     }
 
     private void changeAppColor() {
@@ -545,7 +550,7 @@ public class RunCommandUI extends AppFrame {
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
         //TODO: for below code
-        SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, null, selectionTextColor);
+        SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, null, highlightColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
 
@@ -633,9 +638,11 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void applyTheme(UIManager.LookAndFeelInfo lfClass) {
-        SwingUtils.applyTheme(themeIdx, lfClass, this, logger);
-        SwingUtils.updateForTheme(tblCommands);
-        //logThemeChangeInfo (lfClass);
+        if (windowActive) {
+            SwingUtils.applyTheme(themeIdx, lfClass, this, logger);
+            SwingUtils.updateForTheme(tblCommands);
+            //logThemeChangeInfo (lfClass);
+        }
     }
 
     private UIManager.LookAndFeelInfo getNextLookAndFeel() {
