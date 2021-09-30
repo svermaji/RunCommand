@@ -115,10 +115,12 @@ public class RunCommandUI extends AppFrame {
     private AppTextField txtFilter;
     private JButton btnReload, btnClear;
     private JButton[] btnFavs;
+    private JLabel[] lblRecents;
     private List<String> favs;
     // Should be either 5 or 10
     private boolean numOnFav = false;
     private int favBtnLimit = 10;
+    private int recentLblLimit = 5;
     private final int BTN_IN_A_ROW = 5;
     private final int LBL_INFO_FONT_SIZE = 14;
 
@@ -240,6 +242,22 @@ public class RunCommandUI extends AppFrame {
         }
         redrawFavBtns();
 
+        lblRecents = new JLabel[recentLblLimit];
+        for (int i = 0; i < recentLblLimit; i++) {
+            JLabel l = new JLabel();
+            l.setHorizontalAlignment(JLabel.CENTER);
+            l.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        txtFilter.setText(l.getText());
+                    }
+                }
+            });
+            lblRecents[i] = l;
+        }
+        redrawRecentLbls();
+
         JPanel favBtnPanel = new JPanel(new GridLayout(favBtnLimit / BTN_IN_A_ROW, 1));
         JPanel favBtnPanel1 = new JPanel(new GridBagLayout());
         JPanel favBtnPanel2 = new JPanel(new GridBagLayout());
@@ -280,7 +298,8 @@ public class RunCommandUI extends AppFrame {
         toColor.add(lowerPanel);
         JScrollPane jspCmds = new JScrollPane(tblCommands);
 
-        JPanel filterPanel = new JPanel();
+        JPanel filterPanelParent = new JPanel(new GridLayout(2, 1));
+        JPanel filterPanel = new JPanel(new GridBagLayout());
         filterPanel.setLayout(new GridBagLayout());
         filterPanel.add(lblFilter);
         filterPanel.add(jtb);
@@ -288,9 +307,12 @@ public class RunCommandUI extends AppFrame {
         filterPanel.add(btnReload);
         filterPanel.add(btnExit);
         filterPanel.setBorder(EMPTY_BORDER);
-        //toColor.add(filterPanel);
+        JPanel recentLblPanel = new JPanel(new GridLayout(1, recentLblLimit));
+        Arrays.stream(lblRecents).forEach(recentLblPanel::add);
+        filterPanelParent.add(filterPanel);
+        filterPanelParent.add(recentLblPanel);
 
-        lowerPanel.add(filterPanel, BorderLayout.NORTH);
+        lowerPanel.add(filterPanelParent, BorderLayout.NORTH);
         lowerPanel.add(jspCmds, BorderLayout.CENTER);
         lowerPanel.setBorder(EMPTY_BORDER);
 
@@ -348,6 +370,7 @@ public class RunCommandUI extends AppFrame {
             updateRecentMenu(menuRFilters, arrF, txtFilter, TXT_F_MAP_KEY);
             txtFilter.setAutoCompleteArr(arrF);
         }
+        redrawRecentLbls();
     }
 
     private String checkItems(String searchStr, String csv) {
@@ -515,11 +538,14 @@ public class RunCommandUI extends AppFrame {
     private void changeAppColor() {
         Color cl = jcbmiApplyToApp.getState() ? highlightColor : ORIG_COLOR;
 
+        Arrays.stream(lblRecents).forEach(l -> l.setForeground(highlightTextColor));
         titledFP.setTitleColor(highlightTextColor);
         mb.setBorder(SwingUtils.createLineBorder(selectionColor));
         JComponent[] ca = {btnClear, btnReload, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
+        //TODO: for below code
+        //SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
 
@@ -641,6 +667,7 @@ public class RunCommandUI extends AppFrame {
         clearOldRows();
         createRows();
         redrawFavBtns();
+        redrawRecentLbls();
         enableControls();
     }
 
@@ -697,6 +724,15 @@ public class RunCommandUI extends AppFrame {
             b.setText(checkLength(nm));
             b.setToolTipText(cmd + ". Shortcut: Alt+" + (idx.intValue() == 9 ? 0 : (idx.intValue() + 1)));
             idx.getAndIncrement();
+        }
+    }
+
+    private void redrawRecentLbls() {
+        String[] recentList = getRecentFiltersList();
+        int listLen = recentList.length;
+        for (int i = 0; i < recentLblLimit; i++) {
+            lblRecents[i].setText((i < listLen) ? recentList[i] : "");
+            lblRecents[i].setToolTipText((i < listLen) ? "Click to apply filter" : "");
         }
     }
 
