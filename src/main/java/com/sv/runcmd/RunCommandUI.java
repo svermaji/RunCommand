@@ -251,6 +251,7 @@ public class RunCommandUI extends AppFrame {
                 public void mouseClicked(MouseEvent e) {
                     if (SwingUtilities.isLeftMouseButton(e)) {
                         txtFilter.setText(l.getText());
+                        updateRecentFilters();
                     }
                 }
             });
@@ -538,14 +539,13 @@ public class RunCommandUI extends AppFrame {
     private void changeAppColor() {
         Color cl = jcbmiApplyToApp.getState() ? highlightColor : ORIG_COLOR;
 
-        Arrays.stream(lblRecents).forEach(l -> l.setForeground(highlightTextColor));
         titledFP.setTitleColor(highlightTextColor);
         mb.setBorder(SwingUtils.createLineBorder(selectionColor));
         JComponent[] ca = {btnClear, btnReload, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
         //TODO: for below code
-        //SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, selectionColor, selectionTextColor);
+        SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, null, selectionTextColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
 
