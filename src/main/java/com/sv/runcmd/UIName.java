@@ -1,10 +1,13 @@
 package com.sv.runcmd;
 
+import java.util.Arrays;
+
 public enum UIName {
     LBL_FILTER("Filter", 'F'),
     LBL_R_FILTERS("*", 'R', "Recent used filters."),
     BTN_RELOAD("Reload", 'O'),
     BTN_CLEAR("Clear", 'E'),
+    BTN_LOCK("Lock", 'K', "Lock the screen"),
     MNU_COPY("Copy Command", 'C'),
     MNU_CFG("Open config location", 'G'),
     MNU_CMD("Open command", 'D'),

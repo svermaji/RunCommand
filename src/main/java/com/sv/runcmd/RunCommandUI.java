@@ -145,8 +145,9 @@ public class RunCommandUI extends AppFrame {
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
         appProps = Utils.readPropertyFile("./app.properties", logger);
 
-        applyWindowActiveCheck(new WindowChecks[]{
-                WindowChecks.WINDOW_ACTIVE});
+        applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE});
+        addLockScreen();
+        super.setLogger(logger);
 
         final int MAX_FAV_ALLOWED = 10;
         final int MIN_FAV_ALLOWED = 5;
@@ -199,6 +200,7 @@ public class RunCommandUI extends AppFrame {
         uin = UIName.BTN_CLEAR;
         btnClear = new AppButton(uin.name, uin.mnemonic);
         btnClear.addActionListener(evt -> clearFilter());
+        uin = UIName.BTN_LOCK;
 
         uin = UIName.LBL_R_FILTERS;
         mb = new JMenuBar();
@@ -415,7 +417,6 @@ public class RunCommandUI extends AppFrame {
         mbarSettings = new JMenuBar();
         JMenu menuSettings = new JMenu("Settings");
         menuTime = new JMenu("");
-
         char ch = 's';
         menuSettings.setMnemonic(ch);
         menuSettings.setToolTipText("Settings." + SHORTCUT + ch);
@@ -492,6 +493,13 @@ public class RunCommandUI extends AppFrame {
 
         menuSettings.addSeparator();
         menuSettings.add(jcbmiApplyToApp);
+        menuSettings.addSeparator();
+        JMenuItem jmiChangePwd = new JMenuItem("Change Password", 'c');
+        jmiChangePwd.addActionListener(e -> showChangePwdScreen(highlightColor));
+        JMenuItem jmiLock = new JMenuItem("Lock screen", 'o');
+        jmiLock.addActionListener(e -> showLockScreen(highlightColor));
+        menuSettings.add(jmiChangePwd);
+        menuSettings.add(jmiLock);
 
         mbarSettings.add(menuSettings);
         mbarSettings.add(menuTime);
@@ -499,6 +507,7 @@ public class RunCommandUI extends AppFrame {
         setJMenuBar(mbarSettings);
     }
 
+    //TODO: hide command or path based on option
     private void setControlsToEnable() {
         List<Component> cmpList = new ArrayList<>();
 
