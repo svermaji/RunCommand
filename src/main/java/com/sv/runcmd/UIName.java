@@ -8,6 +8,7 @@ public enum UIName {
     BTN_RELOAD("Reload", 'O'),
     BTN_CLEAR("Clear", 'E'),
     BTN_LOCK("<html>&#x1F512;</html>", 'K', "Lock the screen"),
+    BTN_CHNG_PWD("<html>&#x1F511;</html>", 'G', "Change password"),
     MNU_COPY("Copy Command", 'C'),
     MNU_CFG("Open config location", 'G'),
     MNU_CMD("Open command", 'D'),

@@ -204,7 +204,7 @@ public class RunCommandUI extends AppFrame {
         btnClear = new AppButton(uin.name, uin.mnemonic);
         btnClear.addActionListener(evt -> clearFilter());
         uin = UIName.BTN_LOCK;
-        btnLock = new AppButton(uin.name, uin.mnemonic);
+        btnLock = new AppButton(uin.name, uin.mnemonic, uin.tip);
         btnLock.addActionListener(evt -> showLockScreen(highlightColor));
 
         uin = UIName.LBL_R_FILTERS;
