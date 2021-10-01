@@ -2,6 +2,10 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 1-Oct-2021<br>
+* Lock screen and change password screen added
+* Password is securely stored with salt
+
 #### On 30-Sep-2021<br>
 * Update for recent labels for quick filter
 

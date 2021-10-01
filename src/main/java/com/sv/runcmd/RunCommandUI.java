@@ -495,7 +495,7 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(jcbmiApplyToApp);
         menuSettings.addSeparator();
         JMenuItem jmiChangePwd = new JMenuItem("Change Password", 'c');
-        jmiChangePwd.addActionListener(e -> showChangePwdScreen(highlightColor));
+        jmiChangePwd.addActionListener(e -> changeLockPassword ());
         JMenuItem jmiLock = new JMenuItem("Lock screen", 'o');
         jmiLock.addActionListener(e -> showLockScreen(highlightColor));
         menuSettings.add(jmiChangePwd);
@@ -505,6 +505,14 @@ public class RunCommandUI extends AppFrame {
         mbarSettings.add(menuTime);
 
         setJMenuBar(mbarSettings);
+    }
+
+    private void changeLockPassword() {
+        showChangePwdScreen(highlightColor);
+        if (pwdChangedFlag) {
+            lastCmdRun = "Password changed";
+            updateInfo();
+        }
     }
 
     //TODO: hide command or path based on option
