@@ -43,10 +43,10 @@ Utility in Java to run command like batch file or sh file or any other command
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-1-oct-21-menu.png)
 
 * Lock Screen Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-lock-1-oct-21-menu.png)
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-lock-1-oct-21.png)
 
 * Change Password Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-change-pwd-1-oct-21-menu.png)
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-change-pwd-1-oct-21.png)
 
 * First cut<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-first-cut.png) 
