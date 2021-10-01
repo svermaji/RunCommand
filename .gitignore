@@ -9,6 +9,9 @@
 # Log file
 *.log
 
+# Lock file
+secret.lock
+
 # BlueJ files
 *.ctxt
 
