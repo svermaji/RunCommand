@@ -32,21 +32,6 @@ import static com.sv.swingui.UIConstants.*;
 
 public class RunCommandUI extends AppFrame {
 
-    private int themeIdx = 0;
-    private int colorIdx = 0;
-    private final String SEPARATOR = "~";
-    public static final int RECENT_LIMIT = 10;
-    private String recentFiltersStr, closeCommandStr;
-    private final String TXT_F_MAP_KEY = "Action.FilterMenuItem";
-    private final RunCommandUtil commandUtil;
-    private RunCommandTimer runCommandTimer;
-    private TitledBorder titledFP;
-    private List<JComponent> toColor;
-    private Timer cmdTimer, cmdTimerTrack;
-    private JMenu menuRFilters;
-    private JMenuBar mb;
-    private String timerTrack = "";
-
     enum AppProps {
         Host
     }
@@ -100,6 +85,22 @@ public class RunCommandUI extends AppFrame {
 
     private static String lastCmdRun = "none", lastThemeApplied, lastColorApplied;
 
+    private int themeIdx = 0;
+    private int colorIdx = 0;
+    private final String SEPARATOR = "~";
+    public static final int RECENT_LIMIT = 10;
+    private String recentFiltersStr, closeCommandStr;
+    private final String TXT_F_MAP_KEY = "Action.FilterMenuItem";
+    private final RunCommandUtil commandUtil;
+    private RunCommandTimer runCommandTimer;
+    private TitledBorder titledFP;
+    private List<JComponent> toColor;
+    private Timer cmdTimer, cmdTimerTrack;
+    private JMenu menuRFilters;
+    private JMenuBar mb;
+    private String timerTrack = "";
+    private String FAV_HEADING = "Favourites (starts with *)";
+
     private final MyLogger logger;
     private DefaultConfigs configs;
     private Properties appProps;
@@ -113,9 +114,11 @@ public class RunCommandUI extends AppFrame {
     private JMenuBar mbarSettings;
     private JMenu menuTime;
     private AppTextField txtFilter;
-    private JButton btnReload, btnClear;
+    private AppLabel lblFilter;
+    private JButton btnReload, btnClear, btnLock;
     private JButton[] btnFavs;
     private JLabel[] lblRecents;
+    private JPanel favBtnPanel;
     private List<String> favs;
     // Should be either 5 or 10
     private boolean numOnFav = false;
@@ -192,7 +195,7 @@ public class RunCommandUI extends AppFrame {
 
         // setting value from config at last to apply filter
         txtFilter = new AppTextField("", TXT_COLS, getFilters());
-        AppLabel lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
+        lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
 
         uin = UIName.BTN_RELOAD;
         btnReload = new AppButton(uin.name, uin.mnemonic);
@@ -201,6 +204,8 @@ public class RunCommandUI extends AppFrame {
         btnClear = new AppButton(uin.name, uin.mnemonic);
         btnClear.addActionListener(evt -> clearFilter());
         uin = UIName.BTN_LOCK;
+        btnLock = new AppButton(uin.name, uin.mnemonic);
+        btnLock.addActionListener(evt -> showLockScreen(highlightColor));
 
         uin = UIName.LBL_R_FILTERS;
         mb = new JMenuBar();
@@ -216,6 +221,7 @@ public class RunCommandUI extends AppFrame {
         jtb.setRollover(false);
         jtb.add(txtFilter);
         jtb.add(mb);
+        jtb.add(btnLock);
 
         JButton btnExit = new AppExitButton(true);
 
@@ -264,7 +270,7 @@ public class RunCommandUI extends AppFrame {
         }
         redrawRecentLbls();
 
-        JPanel favBtnPanel = new JPanel(new GridLayout(favBtnLimit / BTN_IN_A_ROW, 1));
+        favBtnPanel = new JPanel(new GridLayout(favBtnLimit / BTN_IN_A_ROW, 1));
         JPanel favBtnPanel1 = new JPanel(new GridBagLayout());
         JPanel favBtnPanel2 = new JPanel(new GridBagLayout());
         favBtnPanel.add(favBtnPanel1);
@@ -274,7 +280,7 @@ public class RunCommandUI extends AppFrame {
         if (btnFavs.length > BTN_IN_A_ROW) {
             favBtnPanel.add(favBtnPanel2);
         }
-        titledFP = new TitledBorder("Favourites (starts with *)");
+        titledFP = new TitledBorder(FAV_HEADING);
         favBtnPanel.setBorder(titledFP);
         GridBagConstraints c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -495,7 +501,7 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(jcbmiApplyToApp);
         menuSettings.addSeparator();
         JMenuItem jmiChangePwd = new JMenuItem("Change Password", 'c');
-        jmiChangePwd.addActionListener(e -> changeLockPassword ());
+        jmiChangePwd.addActionListener(e -> showChangePwdScreen(highlightColor));
         JMenuItem jmiLock = new JMenuItem("Lock screen", 'o');
         jmiLock.addActionListener(e -> showLockScreen(highlightColor));
         menuSettings.add(jmiChangePwd);
@@ -507,9 +513,9 @@ public class RunCommandUI extends AppFrame {
         setJMenuBar(mbarSettings);
     }
 
-    private void changeLockPassword() {
-        showChangePwdScreen(highlightColor);
-        if (pwdChangedFlag) {
+    @Override
+    public void pwdChangedStatus(boolean pwdChanged) {
+        if (pwdChanged) {
             lastCmdRun = "Password changed";
             updateInfo();
         }
@@ -561,9 +567,12 @@ public class RunCommandUI extends AppFrame {
     private void changeAppColor() {
         Color cl = jcbmiApplyToApp.getState() ? highlightColor : ORIG_COLOR;
 
+        titledFP = (TitledBorder) SwingUtils.createTitledBorder(FAV_HEADING, highlightTextColor);
         titledFP.setTitleColor(highlightTextColor);
+        favBtnPanel.setBorder(titledFP);
+        lblFilter.setForeground(highlightTextColor);
         mb.setBorder(SwingUtils.createLineBorder(selectionColor));
-        JComponent[] ca = {btnClear, btnReload, menuRFilters};
+        JComponent[] ca = {btnClear, btnReload, btnLock, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
         //TODO: for below code
