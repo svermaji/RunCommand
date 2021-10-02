@@ -197,6 +197,7 @@ public class RunCommandUI extends AppFrame {
         txtFilter = new AppTextField("", TXT_COLS, getFilters());
         lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
 
+        // todo auto lock by configuration
         uin = UIName.BTN_RELOAD;
         btnReload = new AppButton(uin.name, uin.mnemonic);
         btnReload.addActionListener(evt -> reloadFile());
@@ -546,7 +547,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void applyColor(ColorsNFonts color) {
-        if (windowActive) {
+        if (isWindowActive()) {
             //logger.info("Applying color: " + color.name().toLowerCase());
             highlightColor = color.getBk();
             highlightTextColor = color.getFg();
@@ -664,7 +665,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void applyTheme(UIManager.LookAndFeelInfo lfClass) {
-        if (windowActive) {
+        if (isWindowActive()) {
             SwingUtils.applyTheme(themeIdx, lfClass, this, logger);
             SwingUtils.updateForTheme(tblCommands);
             //logThemeChangeInfo (lfClass);
