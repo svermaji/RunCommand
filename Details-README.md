@@ -2,6 +2,9 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Recent Changes<br>
+#### On 3-Oct-2021<br>
+* Auto Lock feature supported based on config
+
 #### On 1-Oct-2021<br>
 * Lock screen and change password screen added
 * Password is securely stored with salt
@@ -75,22 +78,3 @@ If there are more commands user can use filter<br>
 At runtime "Reload" button can be used to refresh commands<br>
 * Example: If batch file called as `start BATCHFILE` then process will be in foreground<br>
 * Example: If batch file called as `BATCHFILE` then process will be in background<br>
-
-#### Images<br>
-Initial - Attaching screen shot of application:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image.png) 
-
-2-Sep-2020 - Attaching screen shot, now user can have themes and colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-theme-color.png) 
-
-2-Sep-2020 - Attaching screen shot, showing colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-theme-color-2.png) 
-
-3-Sep-2020 - Attaching screen shot, showing colors:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-fav.png) 
-
-4-Sep-2020 - Attaching screen shot, new look, bring filter closer to table and some UI changes:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-new-ui.png) 
-
-11-Sep-2020 - Attaching screen shot, favourite title:<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-image-fav-2.png) 

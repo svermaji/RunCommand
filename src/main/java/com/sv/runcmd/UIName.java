@@ -5,8 +5,8 @@ import java.util.Arrays;
 public enum UIName {
     LBL_FILTER("Filter", 'F'),
     LBL_R_FILTERS("*", 'R', "Recent used filters."),
-    BTN_RELOAD("Reload", 'O'),
-    BTN_CLEAR("Clear", 'E'),
+    BTN_RELOAD("<html>&#128257;</html>", 'O', "Reload all commands."),
+    BTN_CLEAR("Clear", 'E', "Clear filter."),
     BTN_LOCK("<html>&#x1F512;</html>", 'K', "Lock the screen"),
     BTN_CHNG_PWD("<html>&#x1F511;</html>", 'G', "Change password"),
     MNU_COPY("Copy Command", 'C'),
@@ -16,7 +16,7 @@ public enum UIName {
     MNU_CLOSE_15("Close in 15 min", '5', "Run 'close' command after 15 min"),
     MNU_CLOSE_30("Close in 30 min", '0', "Run 'close' command after 30 min");
 
-    String name, tip;
+    String name, tip = "";
     char mnemonic;
 
     UIName(String name, char mnemonic) {

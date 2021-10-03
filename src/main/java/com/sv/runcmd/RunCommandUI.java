@@ -38,7 +38,7 @@ public class RunCommandUI extends AppFrame {
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
-        RecentFilters, Filter, ApplyColorToApp, CloseCommand
+        RecentFilters, Filter, AutoLock, ApplyColorToApp, CloseCommand
     }
 
     public enum COLS {
@@ -109,13 +109,13 @@ public class RunCommandUI extends AppFrame {
     private AppTable tblCommands;
     private JPopupMenu tblRowsPopupMenu = new JPopupMenu();
 
-    private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp;
+    private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp, jcbmiAutoLock;
     private static Color highlightColor, highlightTextColor, selectionColor, selectionTextColor;
     private JMenuBar mbarSettings;
     private JMenu menuTime;
     private AppTextField txtFilter;
     private AppLabel lblFilter;
-    private JButton btnReload, btnClear, btnLock;
+    private JButton btnReload, btnClear, btnLock, btnChangePwd;
     private JButton[] btnFavs;
     private JLabel[] lblRecents;
     private JPanel favBtnPanel;
@@ -148,7 +148,11 @@ public class RunCommandUI extends AppFrame {
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
         appProps = Utils.readPropertyFile("./app.properties", logger);
 
-        applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE});
+        if (configs.getBooleanConfig(Configs.AutoLock.name())) {
+            applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE, WindowChecks.AUTO_LOCK});
+        } else {
+            applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE});
+        }
         addLockScreen();
         super.setLogger(logger);
 
@@ -199,14 +203,17 @@ public class RunCommandUI extends AppFrame {
 
         // todo auto lock by configuration
         uin = UIName.BTN_RELOAD;
-        btnReload = new AppButton(uin.name, uin.mnemonic);
+        btnReload = new AppButton(uin.name, uin.mnemonic, uin.tip);
         btnReload.addActionListener(evt -> reloadFile());
         uin = UIName.BTN_CLEAR;
-        btnClear = new AppButton(uin.name, uin.mnemonic);
+        btnClear = new AppButton(uin.name, uin.mnemonic, uin.tip);
         btnClear.addActionListener(evt -> clearFilter());
         uin = UIName.BTN_LOCK;
         btnLock = new AppButton(uin.name, uin.mnemonic, uin.tip);
         btnLock.addActionListener(evt -> showLockScreen(highlightColor));
+        uin = UIName.BTN_CHNG_PWD;
+        btnChangePwd = new AppButton(uin.name, uin.mnemonic, uin.tip);
+        btnChangePwd.addActionListener(evt -> showChangePwdScreen(highlightColor));
 
         uin = UIName.LBL_R_FILTERS;
         mb = new JMenuBar();
@@ -222,7 +229,9 @@ public class RunCommandUI extends AppFrame {
         jtb.setRollover(false);
         jtb.add(txtFilter);
         jtb.add(mb);
+        jtb.add(btnReload);
         jtb.add(btnLock);
+        jtb.add(btnChangePwd);
 
         JButton btnExit = new AppExitButton(true);
 
@@ -317,7 +326,6 @@ public class RunCommandUI extends AppFrame {
         filterPanel.add(lblFilter);
         filterPanel.add(jtb);
         filterPanel.add(btnClear);
-        filterPanel.add(btnReload);
         filterPanel.add(btnExit);
         filterPanel.setBorder(EMPTY_BORDER);
         JPanel recentLblPanel = new JPanel(new GridLayout(1, recentLblLimit));
@@ -454,6 +462,10 @@ public class RunCommandUI extends AppFrame {
         jcbmiApplyToApp.setMnemonic('y');
         jcbmiApplyToApp.setToolTipText("Changes colors of complete application whenever highlight color changes");
 
+        jcbmiAutoLock = new JCheckBoxMenuItem("Auto Lock", null, configs.getBooleanConfig(Configs.AutoLock.name()));
+        jcbmiAutoLock.setMnemonic('L');
+        jcbmiAutoLock.setToolTipText("Auto Lock App if idle for 10 min - change need restart");
+
         menuSettings.add(jcbRC);
         menuSettings.add(SwingUtils.getColorsMenu(true, true,
                 false, true, false, this, logger));
@@ -507,6 +519,7 @@ public class RunCommandUI extends AppFrame {
         jmiLock.addActionListener(e -> showLockScreen(highlightColor));
         menuSettings.add(jmiChangePwd);
         menuSettings.add(jmiLock);
+        menuSettings.add(jcbmiAutoLock);
 
         mbarSettings.add(menuSettings);
         mbarSettings.add(menuTime);
@@ -575,7 +588,7 @@ public class RunCommandUI extends AppFrame {
         mb.setBorder(SwingUtils.createLineBorder(selectionColor));
         tblCommands.setBorder(SwingUtils.createLineBorder(highlightTextColor));
         //tblCommands.getTableHeader().setBackground(highlightColor);
-        JComponent[] ca = {btnClear, btnReload, btnLock, menuRFilters};
+        JComponent[] ca = {btnClear, btnReload, btnLock, btnChangePwd, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
         //TODO: for below code
@@ -965,6 +978,10 @@ public class RunCommandUI extends AppFrame {
 
     public String getApplyColorToApp() {
         return jcbmiApplyToApp.isSelected() + "";
+    }
+
+    public String getAutoLock() {
+        return jcbmiAutoLock.isSelected() + "";
     }
 
     public String getColorIndex() {

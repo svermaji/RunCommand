@@ -3,6 +3,7 @@ Utility in Java to run command like batch file or sh file or any other command
 
 ## Description<br>
 * For date wise changes refer Details-README.md
+* Auto Lock feature supported based on config
 * Lock screen and change password (with salt) screen added
 * Update for color and app checkbox
 * Update for recent labels for quick filter
@@ -37,10 +38,13 @@ Utility in Java to run command like batch file or sh file or any other command
 
 #### Images<br>
 * Application Present Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-30-sep-21.png) 
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-3-oct-21.png) 
 
 * Application Present Menu Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-1-oct-21-menu.png)
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-3-oct-21-menu.png)
+
+* Application colored Image<br>
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-colored-3-oct-21.png)
 
 * Lock Screen Image<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-lock-1-oct-21.png)
