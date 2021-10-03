@@ -3,6 +3,7 @@ Utility in Java to run command like batch file or sh file or any other command
 
 ## Description<br>
 * For date wise changes refer Details-README.md
+* Option to see full command or only name
 * Auto Lock feature supported based on config
 * Lock screen and change password (with salt) screen added
 * Update for color and app checkbox

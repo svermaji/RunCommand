@@ -4,6 +4,7 @@ Utility in Java to run command like batch file or sh file or any other command
 ## Recent Changes<br>
 #### On 3-Oct-2021<br>
 * Auto Lock feature supported based on config
+* Option to see full command or only name
 
 #### On 1-Oct-2021<br>
 * Lock screen and change password screen added
