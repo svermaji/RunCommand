@@ -577,6 +577,10 @@ public class RunCommandUI extends AppFrame {
             highlightTextColor = color.getFg();
             selectionColor = color.getSelbk();
             selectionTextColor = color.getSelfg();
+
+            // setting color for lock screen for auto-lock feature
+            setLockScreenColor(highlightColor);
+
             lblInfo.setBackground(highlightColor);
             lblInfo.setForeground(highlightTextColor);
             Font font = getLblInfoFont(color.getFont());
