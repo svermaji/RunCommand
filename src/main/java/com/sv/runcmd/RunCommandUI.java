@@ -38,7 +38,7 @@ public class RunCommandUI extends AppFrame {
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
-        RecentFilters, Filter, AutoLock, ApplyColorToApp, CloseCommand
+        RecentFilters, Filter, AutoLock, ApplyColorToApp, ShowFullCmd, CloseCommand
     }
 
     public enum COLS {
@@ -109,7 +109,7 @@ public class RunCommandUI extends AppFrame {
     private AppTable tblCommands;
     private JPopupMenu tblRowsPopupMenu = new JPopupMenu();
 
-    private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp, jcbmiAutoLock;
+    private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp, jcbmiAutoLock, jcbmiShowFullCmd;
     private static Color highlightColor, highlightTextColor, selectionColor, selectionTextColor;
     private JMenuBar mbarSettings;
     private JMenu menuTime;
@@ -122,6 +122,7 @@ public class RunCommandUI extends AppFrame {
     private List<String> favs;
     // Should be either 5 or 10
     private boolean numOnFav = false;
+    private boolean showFullCmd = true;
     private int favBtnLimit = 10;
     private int recentLblLimit = 5;
     private final int BTN_IN_A_ROW = 5;
@@ -155,6 +156,9 @@ public class RunCommandUI extends AppFrame {
         }
         addLockScreen();
         super.setLogger(logger);
+
+        showFullCmd = configs.getBooleanConfig(Configs.ShowFullCmd.name());
+        logger.info("showFullCmd " + Utils.addBraces(showFullCmd));
 
         final int MAX_FAV_ALLOWED = 10;
         final int MIN_FAV_ALLOWED = 5;
@@ -201,7 +205,6 @@ public class RunCommandUI extends AppFrame {
         txtFilter = new AppTextField("", TXT_COLS, getFilters());
         lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
 
-        // todo auto lock by configuration
         uin = UIName.BTN_RELOAD;
         btnReload = new AppButton(uin.name, uin.mnemonic, uin.tip);
         btnReload.addActionListener(evt -> reloadFile());
@@ -466,6 +469,13 @@ public class RunCommandUI extends AppFrame {
         jcbmiAutoLock.setMnemonic('L');
         jcbmiAutoLock.setToolTipText("Auto Lock App if idle for 10 min - change need restart");
 
+        jcbmiShowFullCmd = new JCheckBoxMenuItem("Show full command", null, showFullCmd);
+        jcbmiShowFullCmd.setMnemonic('W');
+        jcbmiShowFullCmd.setToolTipText("Show full command");
+        jcbmiShowFullCmd.addActionListener(evt -> {
+            showFullCmd = jcbmiShowFullCmd.isSelected();
+            reloadFile();
+        });
         menuSettings.add(jcbRC);
         menuSettings.add(SwingUtils.getColorsMenu(true, true,
                 false, true, false, this, logger));
@@ -520,6 +530,8 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(jmiChangePwd);
         menuSettings.add(jmiLock);
         menuSettings.add(jcbmiAutoLock);
+        menuSettings.addSeparator();
+        menuSettings.add(jcbmiShowFullCmd);
 
         mbarSettings.add(menuSettings);
         mbarSettings.add(menuTime);
@@ -535,7 +547,6 @@ public class RunCommandUI extends AppFrame {
         }
     }
 
-    //TODO: hide command or path based on option
     private void setControlsToEnable() {
         List<Component> cmpList = new ArrayList<>();
 
@@ -591,7 +602,6 @@ public class RunCommandUI extends AppFrame {
         JComponent[] ca = {btnClear, btnReload, btnLock, btnChangePwd, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
-        //TODO: for below code
         SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, null, highlightColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
@@ -914,9 +924,9 @@ public class RunCommandUI extends AppFrame {
             }
             if (i < DEFAULT_NUM_ROWS) {
                 tblCommands.setValueAt(command, i, COLS.IDX.getIdx());
-                tblCommands.setValueAt(command, i, COLS.COMMAND.getIdx());
+                tblCommands.setValueAt(showFullCmd ? command : getDisplayName(command), i, COLS.COMMAND.getIdx());
             } else {
-                model.addRow(new String[]{command, command});
+                model.addRow(new String[]{command, showFullCmd ? command : getDisplayName(command)});
             }
             i++;
         }
@@ -982,6 +992,10 @@ public class RunCommandUI extends AppFrame {
 
     public String getAutoLock() {
         return jcbmiAutoLock.isSelected() + "";
+    }
+
+    public String getShowFullCmd() {
+        return showFullCmd + "";
     }
 
     public String getColorIndex() {

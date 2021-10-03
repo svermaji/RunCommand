@@ -41,7 +41,7 @@ Utility in Java to run command like batch file or sh file or any other command
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-3-oct-21.png) 
 
 * Application Present Menu Image<br>
-![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-3-oct-21-menu.png)
+![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-3-oct-2021-menu.png)
 
 * Application colored Image<br>
 ![Image of Yaktocat](https://github.com/svermaji/RunCommand/blob/master/app-images/app-image-colored-3-oct-21.png)
