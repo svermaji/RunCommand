@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.sv.core.Constants.*;
@@ -166,6 +167,12 @@ public class RunCommandUI extends AppFrame {
         themeIdx = configs.getIntConfig(Configs.ThemeIndex.name());
         colorIdx = configs.getIntConfig(Configs.ColorIndex.name());
         recentFiltersStr = getCfg(Configs.RecentFilters);
+        if (!recentFiltersStr.startsWith(SEPARATOR)) {
+            recentFiltersStr = SEPARATOR + recentFiltersStr;
+        }
+        if (!recentFiltersStr.endsWith(SEPARATOR)) {
+            recentFiltersStr = recentFiltersStr + SEPARATOR;
+        }
         closeCommandStr = getCfg(Configs.CloseCommand);
 
         toColor = new ArrayList<>();
@@ -373,7 +380,8 @@ public class RunCommandUI extends AppFrame {
     }
 
     private String[] getRecentFiltersList() {
-        return recentFiltersStr.split(SEPARATOR);
+        // remove empty
+        return Arrays.stream(recentFiltersStr.split(SEPARATOR)).filter(Utils::hasValue).toArray(String[]::new);
     }
 
     private String copyCmdToClipboard() {
@@ -388,12 +396,10 @@ public class RunCommandUI extends AppFrame {
         logger.info("update recent filter values");
 
         String s = getFilter();
-        if (Utils.hasValue(s)) {
-            recentFiltersStr = checkItems(s, recentFiltersStr);
-            String[] arrF = recentFiltersStr.split(SEPARATOR);
-            updateRecentMenu(menuRFilters, arrF, txtFilter, TXT_F_MAP_KEY);
-            txtFilter.setAutoCompleteArr(arrF);
-        }
+        recentFiltersStr = checkItems(s, recentFiltersStr);
+        String[] arrF = getRecentFiltersList();
+        updateRecentMenu(menuRFilters, arrF, txtFilter, TXT_F_MAP_KEY);
+        txtFilter.setAutoCompleteArr(arrF);
         redrawRecentLbls();
     }
 
@@ -403,17 +409,19 @@ public class RunCommandUI extends AppFrame {
         }
 
         String csvLC = csv.toLowerCase();
-        String ssLC = searchStr.toLowerCase();
+        String ssp = SEPARATOR + searchStr;
+        String ss = ssp + SEPARATOR;
+        String ssLC = ss.toLowerCase();
         if (csvLC.contains(ssLC)) {
             int idx = csvLC.indexOf(ssLC);
             // remove item and add it again to bring it on top
             csv = csv.substring(0, idx)
-                    + csv.substring(idx + searchStr.length() + SEPARATOR.length());
+                    + SEPARATOR + csv.substring(idx + ssLC.length());
         }
-        csv = searchStr + SEPARATOR + csv;
+        csv = ssp + csv;
 
-        if (csv.split(SEPARATOR).length >= RECENT_LIMIT) {
-            csv = csv.substring(0, csv.lastIndexOf(SEPARATOR));
+        if (csv.split(SEPARATOR).length > RECENT_LIMIT) {
+            csv = csv.substring(0, csv.lastIndexOf(SEPARATOR) + SEPARATOR.length());
         }
 
         return csv;
@@ -761,8 +769,8 @@ public class RunCommandUI extends AppFrame {
             if (i <= 'z') {
                 mi.setMnemonic(i++);
                 addActionOnMenu(new RecentMenuAction(txtF, a), mi, ch, mapKey + ch);
+                m.add(mi);
             }
-            m.add(mi);
         }
     }
 
