@@ -150,12 +150,6 @@ public class RunCommandUI extends AppFrame {
         configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
         appProps = Utils.readPropertyFile("./app.properties", logger);
 
-        if (configs.getBooleanConfig(Configs.AutoLock.name())) {
-            applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE, WindowChecks.AUTO_LOCK});
-        } else {
-            applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE});
-        }
-        addLockScreen();
         super.setLogger(logger);
 
         showFullCmd = configs.getBooleanConfig(Configs.ShowFullCmd.name());
@@ -362,6 +356,12 @@ public class RunCommandUI extends AppFrame {
 
         new Timer().schedule(new ColorChangerTask(this), SEC_1, MIN_10);
         new Timer().schedule(new ThemeChangerTask(this), SEC_1, MIN_10);
+
+        if (configs.getBooleanConfig(Configs.AutoLock.name())) {
+            applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE, WindowChecks.AUTO_LOCK});
+        } else {
+            applyWindowActiveCheck(new WindowChecks[]{WindowChecks.WINDOW_ACTIVE});
+        }
 
         if (!Boolean.parseBoolean(getRandomThemes())) {
             changeTheme();
