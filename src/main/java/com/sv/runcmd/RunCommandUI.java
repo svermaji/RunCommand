@@ -228,9 +228,7 @@ public class RunCommandUI extends AppFrame {
         mb.add(menuRFilters);
         updateRecentMenu(menuRFilters, getRecentFiltersList(), txtFilter, TXT_F_MAP_KEY);
 
-        JToolBar jtb = new JToolBar();
-        jtb.setFloatable(false);
-        jtb.setRollover(false);
+        AppToolBar jtb = new AppToolBar();
         jtb.add(txtFilter);
         jtb.add(mb);
         jtb.add(btnReload);
