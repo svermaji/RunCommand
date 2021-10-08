@@ -605,14 +605,14 @@ public class RunCommandUI extends AppFrame {
         titledFP = (TitledBorder) SwingUtils.createTitledBorder(FAV_HEADING, highlightTextColor);
         titledFP.setTitleColor(highlightTextColor);
         favBtnPanel.setBorder(titledFP);
-        lblFilter.setForeground(highlightTextColor);
+        lblFilter.setForeground(selectionColor);
         mb.setBorder(SwingUtils.createLineBorder(selectionColor));
         tblCommands.setBorder(SwingUtils.createLineBorder(highlightTextColor));
         //tblCommands.getTableHeader().setBackground(highlightColor);
         JComponent[] ca = {btnClear, btnReload, btnLock, btnChangePwd, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
-        SwingUtils.setComponentColor(lblRecents, null, highlightTextColor, null, highlightColor);
+        SwingUtils.setComponentColor(lblRecents, null, selectionColor, null, highlightColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
 
