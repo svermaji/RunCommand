@@ -202,9 +202,11 @@ public class RunCommandUI extends AppFrame {
         lblInfo.setOpaque(true);
         lblInfo.setFont(SwingUtils.getCalibriFont(Font.BOLD, LBL_INFO_FONT_SIZE));
 
+        String tip = "Alt + ↓ to select first row in table";
         // setting value from config at last to apply filter
         txtFilter = new AppTextField("", TXT_COLS, getFilters());
-        lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic);
+        txtFilter.setToolTipText(tip);
+        lblFilter = new AppLabel(uin.name, txtFilter, uin.mnemonic, tip);
 
         uin = UIName.BTN_RELOAD;
         btnReload = new AppButton(uin.name, uin.mnemonic, uin.tip);
@@ -349,6 +351,7 @@ public class RunCommandUI extends AppFrame {
             }
         });
 
+        addBindings();
         setControlsToEnable();
         setPosition();
 
@@ -574,6 +577,33 @@ public class RunCommandUI extends AppFrame {
             return s.substring(0, BTN_TEXT_LIMIT - ELLIPSIS.length()) + ELLIPSIS;
         }
         return s;
+    }
+
+    private void addBindings() {
+
+        Action actionGoToFirstRow = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                selectFirstRow ();
+            }
+        };
+
+        List<KeyActionDetails> keyActionDetails = new ArrayList<>();
+        keyActionDetails.add(new KeyActionDetails(KeyEvent.VK_KP_DOWN, KeyEvent.ALT_DOWN_MASK, actionGoToFirstRow));
+        keyActionDetails.add(new KeyActionDetails(KeyEvent.VK_DOWN, KeyEvent.ALT_DOWN_MASK, actionGoToFirstRow));
+
+        final JComponent[] addBindingsTo = {txtFilter, mb, btnReload, btnChangePwd, btnLock, btnClear};
+        keyActionDetails.forEach(ka -> {
+            KeyStroke keyS = KeyStroke.getKeyStroke(ka.getKeyEvent(), ka.getInputEvent());
+            Arrays.stream(addBindingsTo).forEach(j ->
+                    j.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyS, ka.getAction()));
+        });
+    }
+
+    private void selectFirstRow() {
+        SwingUtils.getInFocus(tblCommands);
+        if (tblCommands.getRowCount() > 0) {
+            tblCommands.changeSelection(0, 0, false, false);
+        }
     }
 
     private void applyColor(ColorsNFonts color) {
