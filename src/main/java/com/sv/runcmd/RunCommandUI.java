@@ -204,7 +204,7 @@ public class RunCommandUI extends AppFrame {
         lblInfo.setOpaque(true);
         lblInfo.setFont(SwingUtils.getCalibriFont(Font.BOLD, LBL_INFO_FONT_SIZE));
 
-        String tip = "Alt + ↓ to select first row in table";
+        String tip = "Alt+↓ to select first row in table. Ctrl+F to use filter.";
         // setting value from config at last to apply filter
         txtFilter = new AppTextField("", TXT_COLS, getFilters());
         txtFilter.setToolTipText(tip);
