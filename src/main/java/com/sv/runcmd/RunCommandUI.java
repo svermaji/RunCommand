@@ -5,7 +5,9 @@ import com.sv.core.config.DefaultConfigs;
 import com.sv.core.exception.AppException;
 import com.sv.core.logger.MyLogger;
 import com.sv.runcmd.helpers.*;
+import com.sv.swingui.KeyActionDetails;
 import com.sv.swingui.SwingUtils;
+import com.sv.swingui.UIConstants;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
@@ -586,17 +588,19 @@ public class RunCommandUI extends AppFrame {
                 selectFirstRow ();
             }
         };
+        Action actionGoToFilter = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                SwingUtils.getInFocus (txtFilter);
+            }
+        };
 
         List<KeyActionDetails> keyActionDetails = new ArrayList<>();
         keyActionDetails.add(new KeyActionDetails(KeyEvent.VK_KP_DOWN, KeyEvent.ALT_DOWN_MASK, actionGoToFirstRow));
         keyActionDetails.add(new KeyActionDetails(KeyEvent.VK_DOWN, KeyEvent.ALT_DOWN_MASK, actionGoToFirstRow));
+        keyActionDetails.add(new KeyActionDetails(KS_CTRL_F, actionGoToFilter));
 
         final JComponent[] addBindingsTo = {txtFilter, mb, btnReload, btnChangePwd, btnLock, btnClear};
-        keyActionDetails.forEach(ka -> {
-            KeyStroke keyS = KeyStroke.getKeyStroke(ka.getKeyEvent(), ka.getInputEvent());
-            Arrays.stream(addBindingsTo).forEach(j ->
-                    j.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(keyS, ka.getAction()));
-        });
+        SwingUtils.addKeyBindings(addBindingsTo, keyActionDetails);
     }
 
     private void selectFirstRow() {
