@@ -963,17 +963,21 @@ public class RunCommandUI extends AppFrame {
 
         int i = 0;
         for (String command : commands) {
-            if (command.startsWith("*")) {
+            if (command.startsWith(STAR)) {
                 favs.add(command);
             }
             if (i < DEFAULT_NUM_ROWS) {
                 tblCommands.setValueAt(command, i, COLS.IDX.getIdx());
-                tblCommands.setValueAt(showFullCmd ? command : getDisplayName(command), i, COLS.COMMAND.getIdx());
+                tblCommands.setValueAt(showFullCmd ? command : getDisplayNameForTable(command), i, COLS.COMMAND.getIdx());
             } else {
-                model.addRow(new String[]{command, showFullCmd ? command : getDisplayName(command)});
+                model.addRow(new String[]{command, showFullCmd ? command : getDisplayNameForTable(command)});
             }
             i++;
         }
+    }
+
+    private String getDisplayNameForTable(String cmd) {
+        return (cmd.startsWith(STAR) ? STAR : EMPTY) + getDisplayName(cmd);
     }
 
     private String getDisplayName(String cmd) {

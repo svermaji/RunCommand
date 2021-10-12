@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.sv.core.Constants.STAR;
+
 public class RunCommandUtil {
 
     private final MyLogger logger;
@@ -92,10 +94,7 @@ public class RunCommandUtil {
     }
 
     private String chopStar(String cmd) {
-        if (cmd.startsWith("*")) {
-            cmd = cmd.substring(1);
-        }
-        return cmd;
+        return (cmd.startsWith(STAR)) ? cmd.substring(1) : cmd;
     }
 
     public String getCmdToRun(String cmd) {
