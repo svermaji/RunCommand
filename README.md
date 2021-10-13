@@ -2,6 +2,7 @@
 Utility in Java to run command like batch file or sh file or any other command
 
 ## Description<br>
+* Increased pom version for new changes.
 * For date wise changes refer Details-README.md
 * Option to see full command or only name
 * Auto Lock feature supported based on config
