@@ -7,7 +7,6 @@ import com.sv.core.logger.MyLogger;
 import com.sv.runcmd.helpers.*;
 import com.sv.swingui.KeyActionDetails;
 import com.sv.swingui.SwingUtils;
-import com.sv.swingui.UIConstants;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
@@ -27,7 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.sv.core.Constants.*;
@@ -41,7 +39,7 @@ public class RunCommandUI extends AppFrame {
 
     enum Configs {
         RandomThemes, RandomColors, ColorIndex, ThemeIndex, FavBtnLimit, NumOnFav,
-        RecentFilters, Filter, AutoLock, ApplyColorToApp, ShowFullCmd, CloseCommand
+        RecentFilters, Filter, AutoLock, ApplyColorToApp, ShowFullCmd, CloseCommand, AppFontSize
     }
 
     public enum COLS {
@@ -83,8 +81,15 @@ public class RunCommandUI extends AppFrame {
     private static final long MIN_15 = MIN_1 * 15;
     private static final long MIN_30 = MIN_1 * 30;
     private static final int DEFAULT_NUM_ROWS = 10;
+    private static final int DEFAULT_TBL_ROW_HT = 16;
+    private static final int DEFAULT_TBL_HT = 675;
+    private static final int DEFAULT_TBL_WIDTH = 477;
     private static final String APP_TITLE = "Run Command";
     private static final String JCB_TOOL_TIP = "Changes every 10 minutes";
+    private static final int MIN_APPFONTSIZE = 8;
+    private static final int MAX_APPFONTSIZE = 28;
+    private static final int DEFUALT_APPFONTSIZE = 12;
+    private static int appFontSize = 0;
 
     private static String lastCmdRun = "none", lastThemeApplied, lastColorApplied;
 
@@ -157,6 +162,8 @@ public class RunCommandUI extends AppFrame {
         showFullCmd = configs.getBooleanConfig(Configs.ShowFullCmd.name());
         logger.info("showFullCmd " + Utils.addBraces(showFullCmd));
 
+        appFontSize = Utils.validateInt(configs.getIntConfig(Configs.AppFontSize.name()),
+                DEFUALT_APPFONTSIZE, MIN_APPFONTSIZE, MAX_APPFONTSIZE);
         final int MAX_FAV_ALLOWED = 10;
         final int MIN_FAV_ALLOWED = 5;
         favBtnLimit = configs.getIntConfig(Configs.FavBtnLimit.name());
@@ -494,6 +501,8 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(jcbRT);
         menuSettings.add(SwingUtils.getThemesMenu(this, logger));
         menuSettings.addSeparator();
+        menuSettings.add(SwingUtils.getAppFontMenu(getContentPane(), this, appFontSize, logger));
+        menuSettings.addSeparator();
 
         UIName u = UIName.MNU_CFG;
         JMenuItem miCfg = new JMenuItem(u.name);
@@ -585,12 +594,12 @@ public class RunCommandUI extends AppFrame {
 
         Action actionGoToFirstRow = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                selectFirstRow ();
+                selectFirstRow();
             }
         };
         Action actionGoToFilter = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                SwingUtils.getInFocus (txtFilter);
+                SwingUtils.getInFocus(txtFilter);
             }
         };
 
@@ -646,7 +655,7 @@ public class RunCommandUI extends AppFrame {
         JComponent[] ca = {btnClear, btnReload, btnLock, btnChangePwd, menuRFilters};
         SwingUtils.setComponentColor(btnFavs, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
-        SwingUtils.setComponentColor(lblRecents, null, selectionColor, null, highlightColor);
+        SwingUtils.setComponentColor(lblRecents, null, selectionColor, null, highlightTextColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
     }
 
@@ -676,6 +685,17 @@ public class RunCommandUI extends AppFrame {
 
     private ColorsNFonts getColor() {
         return ColorsNFonts.values()[colorIdx];
+    }
+
+    // This will be called by reflection from SwingUI jar
+    public void appFontChanged(Integer fs) {
+        logger.info("Application font changed to " + Utils.addBraces(fs));
+        // table row height in ratio of DEFAULT.
+        // For font of size 12, row height is 16 and frame width is 477
+        tblCommands.setRowHeight(fs + 4);
+
+        setSize(fs * 40, getHeight());
+        setPosition();
     }
 
     // This will be called by reflection from SwingUI jar
@@ -1000,6 +1020,8 @@ public class RunCommandUI extends AppFrame {
 
         setLocation(x, y);
         setVisible(true);
+
+        logger.info("window heigh and width = " + getHeight() + "...." + getWidth());
     }
 
     /**
@@ -1012,6 +1034,10 @@ public class RunCommandUI extends AppFrame {
         dispose();
         logger.dispose();
         System.exit(0);
+    }
+
+    public String getAppFontSize() {
+        return appFontSize + "";
     }
 
     public String getRecentFilters() {
