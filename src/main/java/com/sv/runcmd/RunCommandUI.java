@@ -387,6 +387,8 @@ public class RunCommandUI extends AppFrame {
                 updateRecentFilters();
             }
         });
+        new Timer().schedule(new AppFontChangerTask(this), SEC_1 * 3);
+//        changeAppFont();
     }
 
     private String[] getRecentFiltersList() {
@@ -687,12 +689,18 @@ public class RunCommandUI extends AppFrame {
         return ColorsNFonts.values()[colorIdx];
     }
 
+    public void changeAppFont() {
+        SwingUtils.applyAppFont(getContentPane(), appFontSize, this, logger);
+    }
+
     // This will be called by reflection from SwingUI jar
     public void appFontChanged(Integer fs) {
+        appFontSize = fs;
         logger.info("Application font changed to " + Utils.addBraces(fs));
         // table row height in ratio of DEFAULT.
         // For font of size 12, row height is 16 and frame width is 477
         tblCommands.setRowHeight(fs + 4);
+        titledFP.setTitleFont(SwingUtils.getNewFontSize(titledFP.getTitleFont(), fs));
 
         setSize(fs * 40, getHeight());
         setPosition();
@@ -1020,8 +1028,6 @@ public class RunCommandUI extends AppFrame {
 
         setLocation(x, y);
         setVisible(true);
-
-        logger.info("window heigh and width = " + getHeight() + "...." + getWidth());
     }
 
     /**
