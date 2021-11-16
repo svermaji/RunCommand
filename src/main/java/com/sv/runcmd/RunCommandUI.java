@@ -387,8 +387,7 @@ public class RunCommandUI extends AppFrame {
                 updateRecentFilters();
             }
         });
-        new Timer().schedule(new AppFontChangerTask(this), SEC_1 * 3);
-//        changeAppFont();
+        new Timer().schedule(new AppFontChangerTask(this), SEC_1 * 2);
     }
 
     private String[] getRecentFiltersList() {
