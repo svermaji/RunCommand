@@ -502,7 +502,7 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(jcbRT);
         menuSettings.add(SwingUtils.getThemesMenu(this, logger));
         menuSettings.addSeparator();
-        menuSettings.add(SwingUtils.getAppFontMenu(getContentPane(), this, appFontSize, logger));
+        menuSettings.add(SwingUtils.getAppFontMenu(this, this, appFontSize, logger));
         menuSettings.addSeparator();
 
         UIName u = UIName.MNU_CFG;
@@ -689,7 +689,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void changeAppFont() {
-        SwingUtils.applyAppFont(getContentPane(), appFontSize, this, logger);
+        SwingUtils.applyAppFont(this, appFontSize, this, logger);
     }
 
     // This will be called by reflection from SwingUI jar
