@@ -9,6 +9,7 @@ import com.sv.swingui.KeyActionDetails;
 import com.sv.swingui.SwingUtils;
 import com.sv.swingui.component.*;
 import com.sv.swingui.component.table.AppTable;
+import com.sv.swingui.component.table.AppTableHeaderToolTip;
 import com.sv.swingui.component.table.CellRendererCenterAlign;
 import com.sv.swingui.component.table.CellRendererLeftAlign;
 
@@ -46,8 +47,8 @@ public class RunCommandUI extends AppFrame {
         IDX(0, "#", "", "center", 0),
         COMMAND(1, "Commands", "Double click on row OR select & Enter", "left", -1);
 
-        String name, alignment, toolTip;
-        int idx, width;
+        private final String name, alignment, toolTip;
+        private final int idx, width;
 
         COLS(int idx, String name, String toolTip, String alignment, int width) {
             this.name = name;
@@ -104,7 +105,7 @@ public class RunCommandUI extends AppFrame {
     private TitledBorder titledFP;
     private List<JComponent> toColor;
     private Timer cmdTimer, cmdTimerTrack;
-    private JMenu menuRFilters;
+    private AppMenu menuRFilters;
     private JMenuBar mb;
     private String timerTrack = "";
     private String FAV_HEADING = "Favourites (starts with *)";
@@ -113,20 +114,20 @@ public class RunCommandUI extends AppFrame {
     private DefaultConfigs configs;
     private Properties appProps;
     private DefaultTableModel model;
-    private JLabel lblInfo;
+    private AppLabel lblInfo;
     private AppTable tblCommands;
     private JPopupMenu tblRowsPopupMenu = new JPopupMenu();
 
-    private JCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp, jcbmiAutoLock, jcbmiShowFullCmd;
+    private AppCheckBoxMenuItem jcbRT, jcbRC, jcbmiApplyToApp, jcbmiAutoLock, jcbmiShowFullCmd;
     private static Color highlightColor, highlightTextColor, selectionColor, selectionTextColor;
     private JMenuBar mbarSettings;
-    private JMenu menuTime;
+    private AppMenu menuTime;
     private AppTextField txtFilter;
     private AppLabel lblFilter;
-    private JButton btnReload, btnClear, btnLock, btnChangePwd;
-    private JButton[] btnFavs;
-    private JLabel[] lblRecents;
-    private JPanel favBtnPanel;
+    private AppButton btnReload, btnClear, btnLock, btnChangePwd;
+    private AppButton[] btnFavs;
+    private AppLabel[] lblRecents;
+    private AppPanel favBtnPanel;
     private List<String> favs;
     // Should be either 5 or 10
     private boolean numOnFav = false;
@@ -205,7 +206,7 @@ public class RunCommandUI extends AppFrame {
         UIName uin = UIName.LBL_FILTER;
         Border lineBorder = new LineBorder(Color.black, 5, true);
         final int TXT_COLS = 15;
-        lblInfo = new JLabel("Welcome");
+        lblInfo = new AppLabel("Welcome");
         lblInfo.setHorizontalAlignment(SwingConstants.CENTER);
         lblInfo.setBorder(lineBorder);
         lblInfo.setOpaque(true);
@@ -232,10 +233,8 @@ public class RunCommandUI extends AppFrame {
 
         uin = UIName.LBL_R_FILTERS;
         mb = new JMenuBar();
-        menuRFilters = new JMenu(uin.name);
         mb.setBackground(Color.lightGray);
-        menuRFilters.setMnemonic(uin.mnemonic);
-        menuRFilters.setToolTipText(uin.tip);
+        menuRFilters = new AppMenu(uin.name, uin.mnemonic, uin.tip);
         mb.add(menuRFilters);
         updateRecentMenu(menuRFilters, getRecentFiltersList(), txtFilter, TXT_F_MAP_KEY);
 
@@ -267,18 +266,18 @@ public class RunCommandUI extends AppFrame {
             }
         });
 
-        btnFavs = new JButton[favBtnLimit];
+        btnFavs = new AppButton[favBtnLimit];
         for (int i = 0; i < favBtnLimit; i++) {
             String s = "" + (i == 9 ? 0 : i + 1);
-            JButton b = new AppButton(s, s.charAt(0));
+            AppButton b = new AppButton(s, s.charAt(0));
             b.addActionListener(evt -> execCommand(b.getToolTipText()));
             btnFavs[i] = b;
         }
         redrawFavBtns();
 
-        lblRecents = new JLabel[recentLblLimit];
+        lblRecents = new AppLabel[recentLblLimit];
         for (int i = 0; i < recentLblLimit; i++) {
-            JLabel l = new JLabel();
+            AppLabel l = new AppLabel();
             l.setHorizontalAlignment(JLabel.CENTER);
             l.addMouseListener(new MouseAdapter() {
                 @Override
@@ -293,7 +292,7 @@ public class RunCommandUI extends AppFrame {
         }
         redrawRecentLbls();
 
-        favBtnPanel = new JPanel(new GridLayout(favBtnLimit / BTN_IN_A_ROW, 1));
+        favBtnPanel = new AppPanel(new GridLayout(favBtnLimit / BTN_IN_A_ROW, 1));
         JPanel favBtnPanel1 = new JPanel(new GridBagLayout());
         JPanel favBtnPanel2 = new JPanel(new GridBagLayout());
         favBtnPanel.add(favBtnPanel1);
@@ -452,45 +451,37 @@ public class RunCommandUI extends AppFrame {
 
     private void createAppMenu() {
         mbarSettings = new JMenuBar();
-        JMenu menuSettings = new JMenu("Settings");
-        menuTime = new JMenu("");
+        menuTime = new AppMenu("");
         char ch = 's';
-        menuSettings.setMnemonic(ch);
-        menuSettings.setToolTipText("Settings." + SHORTCUT + ch);
+        AppMenu menuSettings = new AppMenu("Settings", ch, "Settings." + SHORTCUT + ch);
 
-        jcbRT = new JCheckBoxMenuItem("Random themes",
-                configs.getBooleanConfig(Configs.RandomThemes.name()));
-        jcbRT.setToolTipText(JCB_TOOL_TIP);
+        jcbRT = new AppCheckBoxMenuItem("Random themes",
+                configs.getBooleanConfig(Configs.RandomThemes.name()), 'T', JCB_TOOL_TIP);
         jcbRT.setSelected(configs.getBooleanConfig(Configs.RandomThemes.name()));
         jcbRT.addActionListener(evt -> {
             if (jcbRT.isSelected()) {
                 changeTheme();
             }
         });
-        jcbRT.setMnemonic('T');
 
-        jcbRC = new JCheckBoxMenuItem("Random colors and fonts",
-                configs.getBooleanConfig(Configs.RandomColors.name()));
-        jcbRC.setToolTipText(JCB_TOOL_TIP);
+        jcbRC = new AppCheckBoxMenuItem("Random colors and fonts",
+                configs.getBooleanConfig(Configs.RandomColors.name()), 'r', JCB_TOOL_TIP);
         jcbRC.setSelected(configs.getBooleanConfig(Configs.RandomColors.name()));
         jcbRC.addActionListener(evt -> {
             if (jcbRC.isSelected()) {
                 changeColor();
             }
         });
-        jcbRC.setMnemonic('r');
 
-        jcbmiApplyToApp = new JCheckBoxMenuItem("Apply color to App", null, configs.getBooleanConfig(Configs.ApplyColorToApp.name()));
-        jcbmiApplyToApp.setMnemonic('y');
-        jcbmiApplyToApp.setToolTipText("Changes colors of complete application whenever highlight color changes");
+        jcbmiApplyToApp = new AppCheckBoxMenuItem("Apply color to App",
+                configs.getBooleanConfig(Configs.ApplyColorToApp.name()), 'y',
+                "Changes colors of complete application whenever highlight color changes");
 
-        jcbmiAutoLock = new JCheckBoxMenuItem("Auto Lock", null, configs.getBooleanConfig(Configs.AutoLock.name()));
-        jcbmiAutoLock.setMnemonic('L');
-        jcbmiAutoLock.setToolTipText("Auto Lock App if idle for 10 min - change need restart");
+        jcbmiAutoLock = new AppCheckBoxMenuItem("Auto Lock",
+                configs.getBooleanConfig(Configs.AutoLock.name()), 'L',
+                "Auto Lock App if idle for 10 min - change need restart");
 
-        jcbmiShowFullCmd = new JCheckBoxMenuItem("Show full command", null, showFullCmd);
-        jcbmiShowFullCmd.setMnemonic('W');
-        jcbmiShowFullCmd.setToolTipText("Show full command");
+        jcbmiShowFullCmd = new AppCheckBoxMenuItem("Show full command", showFullCmd, 'W', "Show full command");
         jcbmiShowFullCmd.addActionListener(evt -> {
             showFullCmd = jcbmiShowFullCmd.isSelected();
             reloadFile();
@@ -521,23 +512,17 @@ public class RunCommandUI extends AppFrame {
 
         menuSettings.addSeparator();
         u = UIName.MNU_CLOSE_15;
-        JMenuItem mi15 = new JMenuItem(u.name);
-        mi15.setMnemonic(u.mnemonic);
-        mi15.setToolTipText(u.tip);
+        AppMenuItem mi15 = new AppMenuItem(u.name, u.mnemonic, u.tip);
         mi15.addActionListener(e -> runTimerCmd(closeCommandStr, MIN_15));
         menuSettings.add(mi15);
 
         u = UIName.MNU_CLOSE_30;
-        JMenuItem mi30 = new JMenuItem(u.name);
-        mi30.setMnemonic(u.mnemonic);
-        mi30.setToolTipText(u.tip);
+        AppMenuItem mi30 = new AppMenuItem(u.name, u.mnemonic, u.tip);
         mi30.addActionListener(e -> runTimerCmd(closeCommandStr, MIN_30));
         menuSettings.add(mi30);
 
         u = UIName.MNU_TIMER_CANCEL;
-        JMenuItem miCancel = new JMenuItem(u.name);
-        miCancel.setMnemonic(u.mnemonic);
-        miCancel.setToolTipText(u.tip);
+        AppMenuItem miCancel = new AppMenuItem(u.name, u.mnemonic, u.tip);
         miCancel.addActionListener(e -> cancelTrackTimer());
         menuSettings.add(miCancel);
 
@@ -690,6 +675,9 @@ public class RunCommandUI extends AppFrame {
 
     public void changeAppFont() {
         SwingUtils.applyAppFont(this, appFontSize, this, logger);
+        Font tipFont = SwingUtils.getNewFontSize(lblInfo.getFont(), appFontSize);
+        SwingUtils.applyTooltipColorNFontAllChild(this, selectionTextColor, selectionColor, tipFont);
+        SwingUtils.applyTooltipColorNFont(tblCommands.getTableHeader(), selectionTextColor, selectionColor, tipFont);
     }
 
     // This will be called by reflection from SwingUI jar
@@ -876,7 +864,7 @@ public class RunCommandUI extends AppFrame {
     }
 
     private void setUpSorterAndFilter(RunCommandUI obj, AppTable table,
-                                      DefaultTableModel model, JTextField txtFilter) {
+                                      DefaultTableModel model, AppTextField txtFilter) {
         table.addSorter(model);
         table.addFilter(txtFilter);
         table.addDblClickOnRow(obj, new Object[]{});
@@ -894,7 +882,7 @@ public class RunCommandUI extends AppFrame {
         Border borderBlue = new LineBorder(Color.BLUE, 1);
         tblCommands = new AppTable(model);
         tblCommands.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblCommands.setTableHeader(new TableHeaderToolTip(tblCommands.getColumnModel(),
+        tblCommands.setTableHeader(new AppTableHeaderToolTip(tblCommands.getColumnModel(),
                 Arrays.stream(COLS.class.getEnumConstants()).map(COLS::getToolTip).toArray(String[]::new)
         ));
         tblCommands.setBorder(borderBlue);
