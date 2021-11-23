@@ -90,7 +90,6 @@ public class RunCommandUI extends AppFrame {
     private static final int MIN_APPFONTSIZE = 8;
     private static final int MAX_APPFONTSIZE = 28;
     private static final int DEFUALT_APPFONTSIZE = 12;
-    private static int appFontSize = 0;
 
     private static String lastCmdRun = "none", lastThemeApplied, lastColorApplied;
 
@@ -226,10 +225,10 @@ public class RunCommandUI extends AppFrame {
         btnClear.addActionListener(evt -> clearFilter());
         uin = UIName.BTN_LOCK;
         btnLock = new AppButton(uin.name, uin.mnemonic, uin.tip);
-        btnLock.addActionListener(evt -> showLockScreen(highlightColor));
+        btnLock.addActionListener(evt -> showLockScreen());
         uin = UIName.BTN_CHNG_PWD;
         btnChangePwd = new AppButton(uin.name, uin.mnemonic, uin.tip);
-        btnChangePwd.addActionListener(evt -> showChangePwdScreen(highlightColor));
+        btnChangePwd.addActionListener(evt -> showChangePwdScreen());
 
         uin = UIName.LBL_R_FILTERS;
         mb = new JMenuBar();
@@ -530,9 +529,9 @@ public class RunCommandUI extends AppFrame {
         menuSettings.add(jcbmiApplyToApp);
         menuSettings.addSeparator();
         JMenuItem jmiChangePwd = new JMenuItem("Change Password", 'c');
-        jmiChangePwd.addActionListener(e -> showChangePwdScreen(highlightColor));
+        jmiChangePwd.addActionListener(e -> showChangePwdScreen());
         JMenuItem jmiLock = new JMenuItem("Lock screen", 'o');
-        jmiLock.addActionListener(e -> showLockScreen(highlightColor));
+        jmiLock.addActionListener(e -> showLockScreen());
         menuSettings.add(jmiChangePwd);
         menuSettings.add(jmiLock);
         menuSettings.add(jcbmiAutoLock);
@@ -613,16 +612,14 @@ public class RunCommandUI extends AppFrame {
             selectionColor = color.getSelbk();
             selectionTextColor = color.getSelfg();
 
-            // setting color for lock screen for auto-lock feature
-            setLockScreenColor(highlightColor);
-
             lblInfo.setBackground(highlightColor);
             lblInfo.setForeground(highlightTextColor);
             Font font = getLblInfoFont(color.getFont());
             logger.info("Applying color and font: " + font.getName());
-            lblInfo.setFont(getLblInfoFont(color.getFont()));
+            lblInfo.setFont(font);
             lblInfo.setBorder(new LineBorder(highlightTextColor, 3, true));
             lastColorApplied = color.name().toLowerCase();
+            setTooltipFont(font);
             changeAppColor();
             updateInfo();
         }
@@ -643,6 +640,8 @@ public class RunCommandUI extends AppFrame {
         SwingUtils.setComponentColor(ca, cl, highlightTextColor, selectionColor, selectionTextColor);
         SwingUtils.setComponentColor(lblRecents, null, selectionColor, null, highlightTextColor);
         SwingUtils.setComponentColor(toColor.toArray(new JComponent[0]), cl, highlightTextColor);
+
+        changeAppFont();
     }
 
     private Font getLblInfoFont(String font) {
@@ -674,8 +673,11 @@ public class RunCommandUI extends AppFrame {
     }
 
     public void changeAppFont() {
-        SwingUtils.applyAppFont(this, appFontSize, this, logger);
+        // will set colors for pwd screens
+        setAppColors(highlightTextColor, highlightColor, selectionTextColor, selectionColor);
         Font tipFont = SwingUtils.getNewFontSize(lblInfo.getFont(), appFontSize);
+        setTooltipFont(tipFont);
+        SwingUtils.applyAppFont(this, appFontSize, this, logger);
         SwingUtils.applyTooltipColorNFontAllChild(this, selectionTextColor, selectionColor, tipFont);
         SwingUtils.applyTooltipColorNFont(tblCommands.getTableHeader(), selectionTextColor, selectionColor, tipFont);
     }
